@@ -1,0 +1,22 @@
+auto-save-list/
+recentf
+config.el
+# ignore all the autosaves
+/#*.el#
+eln-cache/
+*.el~      
+elpaca/
+org-roam.db
+transient/
+.cache/
+/#init.el#
+LanguageTool/
+bookmarks
+bookmarks~
+.org-id-locations
+.tutor/
+transient/
+url/
+.trash/
+elpa/
+eshell/

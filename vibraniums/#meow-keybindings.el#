@@ -1,0 +1,3 @@
+
+;; provide the required ID
+(provide 'meow-keybindings)

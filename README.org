@@ -1,0 +1,1009 @@
+#+TITLE: Dr. Eccentric's Emacs Literate Config
+#+AUTHOR: Dr. Eccentric
+#+DESCRICPTION: Eccentric's Personal Emacs Config.
+#+STARTUP: indent
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
+#+OPTIONS: toc:
+
+* TABLE OF CONTENTS :toc:
+- [[#elpaca][Elpaca]]
+- [[#init-file-wrapper][Init File wrapper]]
+- [[#initel-creation-zone][Init.el Creation Zone]]
+  - [[#auto-tangle-configuration-files][Auto-tangle Configuration Files]]
+  - [[#configure-babel-languages][Configure Babel Languages]]
+- [[#cache][Cache]]
+- [[#backup][Backup]]
+- [[#personal-details][PERSONAL DETAILS]]
+- [[#user-interface-customization][USER-INTERFACE CUSTOMIZATION]]
+  - [[#basic-ui-configuration][Basic UI Configuration]]
+  - [[#fonts][Fonts]]
+  - [[#dashboard][Dashboard]]
+  - [[#theme][Theme]]
+  - [[#mode-line][MODE-LINE]]
+  - [[#rainbow-delimiter][RAINBOW DELIMITER]]
+  - [[#which-key][WHICH-Key]]
+  - [[#butler-for-the-buffer][BUTLER FOR THE BUFFER]]
+  - [[#idea-smart-parens][IDEA SMART PARENS]]
+  - [[#all-the-icons][ALL THE ICONS]]
+- [[#modal-editing][Modal Editing]]
+  - [[#meow][Meow]]
+  - [[#evil][EVIL]]
+- [[#fail-safe][Fail Safe]]
+- [[#idea-dired][IDEA Dired]]
+- [[#neo-tree][NEO-TREE]]
+- [[#keybindings][Keybindings]]
+  - [[#general][GENERAL]]
+  - [[#idea-table][IDEA table]]
+- [[#predicting-layers][Predicting layers]]
+  - [[#vertico][VERTICO]]
+  - [[#ivy][Ivy]]
+  - [[#marginaila][MARGINAILA]]
+  - [[#orderless][ORDERLESS]]
+  - [[#consule][CONSULE]]
+  - [[#history][History]]
+  - [[#company][Company]]
+  - [[#fuzzy-search][Fuzzy Search]]
+  - [[#language-tool][Language-tool]]
+- [[#bibletex][Bibletex]]
+  - [[#citar][CITAR]]
+  - [[#org-ref][ORG-REF]]
+  - [[#org-bibletex][ORG-BIBLETEX]]
+  - [[#filing-system][Filing System]]
+- [[#r-setup][R setup]]
+- [[#worg-microsome][wORG Microsome]]
+  - [[#org-beautification][Org Beautification]]
+  - [[#sticky-headers][Sticky Headers]]
+  - [[#org-remark][ORG-REMARK]]
+  - [[#org-tempo--short-hand][ORG-TEMPO | SHORT HAND]]
+  - [[#directory-yellow-pages][Directory (Yellow Pages)]]
+  - [[#idea-org-sidebar][IDEA Org-Sidebar]]
+  - [[#super-bullets][Super bullets]]
+  - [[#enabling-of-toc-to-all-org-documents][ENABLING OF TOC TO ALL ORG DOCUMENTS:]]
+  - [[#olivetti][Olivetti]]
+  - [[#interleaving][Interleaving]]
+  - [[#org-presentation][ORG-Presentation]]
+  - [[#templates][TEMPLATES]]
+- [[#org-roam][ORG-ROAM]]
+  - [[#installation][Installation]]
+  - [[#idea-emacs-sql][IDEA EMACS-sql]]
+  - [[#org-roam-ui][ORG-ROAM-UI]]
+  - [[#caching][Caching]]
+- [[#plan-org-agenda][PLAN ORG-AGENDA]]
+  - [[#keywords][KEYWORDS]]
+  - [[#org-reoccurer][ORG-REOCCURER]]
+  - [[#re-file][RE: file]]
+  - [[#ui-improvement][UI Improvement]]
+  - [[#org-caldav][ORG-CalDAv]]
+- [[#org-journal][ORG-JOURNAL]]
+- [[#idea-rss][IDEA RSS]]
+- [[#vterm][Vterm]]
+- [[#custom-configuration][Custom Configuration]]
+
+* Elpaca
+#+begin_src emacs-lisp
+;; -*- lexical-binding: t; -*-
+
+  ;; The loading of the Vibraniums
+        (add-to-list 'load-path "~/.config/emacs/vibraniums/")
+        ;; The Elpaca Package Manager
+        (require 'elpaca-setup)
+#+end_src
+* Init File wrapper
+#+begin_src emacs-lisp
+(let ((file-name-handler-alist nil)) "~/.config/emacs/init.el")
+#+end_src
+
+* Init.el Creation Zone
+** Auto-tangle Configuration Files
+This snippet adds a hook to =org-mode= buffers so that =dr/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
+#+begin_src emacs-lisp
+  ;; Automatically tangle our config.org config file when we save it
+  (defun dr/org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "~/.config/emacs/README.org"))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'dr/org-babel-tangle-config)))
+#+end_src
+
+
+** Configure Babel Languages
+To execute or export code in =org-mode= code blocks, you'll need to set up =org-babel-load-languages= for each language you'd like to use.
+#+begin_src emacs-lisp
+    (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+        (python . t)
+        (R . t)))
+    (push '("conf-unix" . conf-unix) org-src-lang-modes)
+#+end_src
+
+* Cache
+#+begin_src emacs-lisp
+(add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+#+end_src
+
+* Backup
+#+begin_src emacs-lisp
+(setq backup-directory-alist '((".*" . "~/.config/emacs/.trash")))
+#+end_src
+
+* PERSONAL DETAILS
+#+begin_src emacs-lisp
+(setq user-full-name "Ivan Pereira"
+      user-mail-address "ivan.pereira@mailfence.com")
+#+end_src
+
+* USER-INTERFACE CUSTOMIZATION
+** Basic UI Configuration
+This section configures basic UI settings that remove unneeded elements to make Emacs look a lot more minimal and modern.
+#+begin_src emacs-lisp 
+    ;; Disable line numbers for some modes
+     (dolist (mode '(
+                    term-mode-hook
+                    shell-mode-hook
+                    treemacs-mode-hook
+                    eshell-mode-hook))
+      (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+** Fonts
+#+begin_src emacs-lisp
+    ;; Set the default font
+    (set-face-attribute 'default nil
+		     :font "Input Sans"
+		     :height 180
+		     :weight 'medium)
+   (set-face-attribute 'variable-pitch nil
+    :font "Input Sans"
+    :height 180
+    :weight 'medium)
+    (set-face-attribute 'fixed-pitch nil
+    :font "Input Mono"
+    :height 180
+    :weight 'medium)
+  ;; Makes commented text and keywords italics.
+  ;; This is working in emacsclient but not emacs.
+  ;; Your font must have an italic face available.
+  (set-face-attribute 'font-lock-comment-face nil
+    :slant 'italic)
+  (set-face-attribute 'font-lock-keyword-face nil
+    :slant 'italic)
+
+  ;; This sets the default font on all graphical frames created after restarting Emacs.
+  ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
+  ;; are not right unless I also add this method of setting the default font.
+  ;;(add-to-list 'default-frame-alist '(font . "Input Mono-11"))
+
+  ;; Uncomment the following line if line spacing needs adjusting.
+;  (setq-default line-spacing 0.12)
+
+    ;; Enable line numbers
+    (global-display-line-numbers-mode t)
+
+  (use-package nerd-icons
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+#+end_src
+
+** Dashboard
+#+begin_src emacs-lisp
+           (use-package dashboard
+            :config
+            (dashboard-setup-startup-hook)
+          (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
+        ;; Set the title
+        (setq dashboard-banner-logo-title "Welcome to Forgers Board")
+        ;; Set the banner
+  ;;    (setq dashboard-startup-banner 'logo)
+        (setq dashboard-startup-banner "/home/Dr.Eccentric/Pictures/DP/CosmoDoc-modified.png")
+        ;; Value can be
+        ;; - nil to display no banner
+        ;; - 'official which displays the official emacs logo
+        ;; - 'logo which displays an alternative emacs logo
+        ;; - 1, 2 or 3 which displays one of the text banners
+        ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
+        ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+
+        ;; Content is not centered by default. To center, set
+        (setq dashboard-center-content t)
+
+        ;; To disable shortcut "jump" indicators for each section, set
+        (setq dashboard-show-shortcuts t)
+    (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
+    (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
+#+end_src
+ 
+** Theme
++ I need to find out why this not considered to be not safe
+  - What is the reason
+#+begin_src emacs-lisp
+	(use-package ef-themes
+          :demand t
+          :config
+           (load-theme 'ef-elea-dark :no-confirm))
+#+end_src
+- Pitch / Size Themeing
+#+begin_src emacs-lisp :tangle no
+    (setq ef-themes-headings ; read the manual's entry or the doc string
+	  '((0 variable-pitch light 1.9)
+	    (1 variable-pitch light 1.8)
+	    (2 variable-pitch regular 1.7)
+	    (3 variable-pitch regular 1.6)
+	    (4 variable-pitch regular 1.5)
+	    (5 variable-pitch 1.4) ; absence of weight means `bold'
+	    (6 variable-pitch 1.3)
+	    (7 variable-pitch 1.2)
+	    (t variable-pitch 1.1)))
+  (setq ef-themes-mixed-fonts t
+	ef-themes-variable-pitch-ui t)
+;; Disable all other themes to avoid awkward blending:
+(mapc #'disable-theme custom-enabled-themes)
+#+end_src
+
+** MODE-LINE
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :demand t
+ :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 30)))
+#+end_src
+
+** RAINBOW DELIMITER
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+** WHICH-Key
+#+begin_src emacs-lisp
+(use-package which-key
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 1))
+#+end_src
+** BUTLER FOR THE BUFFER
+#+begin_src emacs-lisp :tangle no
+  (use-package bufler
+    :elpaca (bufler :fetcher github :repo "alphapapa/bufler.el"
+                    :files (:defaults (:exclude "helm-bufler.el"))))
+#+end_src
+
+** IDEA SMART PARENS
+#+begin_src emacs-lisp
+      (use-package smartparens-config
+      :elpaca (smartpares-config :host github :repo "Fuco1/smartparens")
+      :config
+     (smartparens-global-mode t)
+     ;; Customize smartparens behavior for ~
+(sp-pair "~" "~" :trigger "~"))
+#+end_src
+
+** ALL THE ICONS
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+#+end_src
+
+* Modal Editing
+** Meow
+#+begin_src emacs-lisp :tangle no
+    (use-package meow
+      :ensure t
+      :config
+      (require 'meow-iridium)
+      (meow-setup)
+      (meow-global-mode 1)
+  )
+#+end_src
+** EVIL
+#+begin_src emacs-lisp
+      (use-package evil
+        :ensure t
+        :init
+          (setq evil-want-integration t)
+          (setq evil-want-keybinding nil)
+          (evil-mode 1))
+#+end_src
+
+*** EVIL ORG
+#+begin_src emacs-lisp
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)) 
+#+end_src
+*** EVIL COLLECTIONS
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :after (evil)
+  :config
+  (evil-collection-init))
+#+end_src
+*** EVIIL Tutor
+#+begin_src emacs-lisp
+(use-package evil-tutor)
+#+end_src
+
+* Fail Safe
+1. Restart
+#+begin_src emacs-lisp
+              (use-package restart-emacs
+          :demand t
+              :elpaca (restart-emacs :host github :repo "iqbalansari/restart-emacs")
+          :config
+          (setq restart-emacs-restore-frame t)
+          :bind
+  ("C-c r r" . restart-emacs))
+#+end_src
+2. Reload
+#+begin_src emacs-lisp 
+    (defun my-reload-emacs ()
+      "Reload Emacs by re-evaluating the init file."
+      (interactive)
+      (load-file user-init-file))
+  
+  (global-set-key (kbd "C-c s") 'my-reload-emacs)
+#+end_src
+
+3. config
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c f e") 'open-my-config)
+
+(defun open-my-config ()
+  "Open README.org ."
+  (interactive)
+  (find-file "~/.config/emacs/README.org"))
+#+end_src
+
+* IDEA Dired
+#+begin_src emacs-lisp  
+(use-package all-the-icons-dired
+  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+
+(use-package dired-open
+  :config
+  ;; Doesn't work as expected!
+  ;;(add-to-list 'dired-open-functions #'dired-open-xdg t)
+  (setq dired-open-extensions '(("png" . "feh")
+                                ("mkv" . "mpv"))))
+#+end_src
+
+* NEO-TREE
+#+begin_src emacs-lisp
+      (use-package neotree
+        :ensure t
+        :config
+        (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+)
+#+end_src
+
+* Keybindings
+** GENERAL
+#+begin_src emacs-lisp
+   (use-package general
+     :config
+     (general-evil-setup)
+      (general-create-definer leader-key
+          :states '(normal insert visual emacs)
+          :keymaps 'override
+          :prefix "SPC" ;; set leader
+          :global-prefix "C-SPC");; access leader in insert mode
+  (require 'hashmap)
+   )
+#+end_src
+
+** IDEA table
+| Key      | Function                 |
+|----------+--------------------------|
+| h        | evil-forward-char        |
+| e        | evil-backward-char       |
+| o        | evil-previous-line       |
+| n        | evil-next-line           |
+| ...      | ...                      |
+
+#+begin_src emacs-lisp
+
+#+end_src
+
+* Predicting layers
+** VERTICO
+#+begin_src emacs-lisp
+    (use-package vertico
+  :custom
+  (vertico-cycle t)
+    :config
+  (vertico-mode 1))
+#+end_src
+- you can also use [[https://www.youtube.com/live/11CO1vCpfrs?feature=share&t=4172]["vertico-extension/postframe"]] for having afloting menu =:M-x=
+** TODO Ivy
+#+begin_src emacs-lisp 
+(use-package ivy
+  :ensure t)
+ ; :config
+ ; (ivy-mode 1))
+
+(use-package ivy-rich
+  :ensure t
+  :config
+  (ivy-rich-mode 1))
+
+(use-package all-the-icons-ivy-rich
+  :config
+  (all-the-icons-ivy-rich-mode 1))
+
+#+end_src
+** MARGINAILA
+#+begin_src emacs-lisp
+	(use-package marginalia
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+  :init
+  (marginalia-mode))
+#+end_src
+
+** ORDERLESS
+#+begin_src emacs-lisp
+      (use-package orderless
+  :init
+  ;; Tune the global completion style settings to your liking!
+  ;; This affects the minibuffer and non-lsp completion at point.
+  (setq completion-styles '(orderless partial-completion basic)
+        completion-category-defaults nil
+        completion-category-overrides nil))
+#+end_src
+
+** CONSULE
+#+begin_src emacs-lisp
+  (use-package counsel
+    :bind (
+          ;("M-x" . counsel-M-x)
+           ("C-x b" . counsel-switch-buffer)
+           ("C-x C-f" . counsel-find-file)
+           :map minibuffer-local-map
+           ("M-r" . 'counsel-minibuffer-history)))
+#+end_src
+
+#+RESULTS:
+
+** History
+#+begin_src emacs-lisp
+  (setq savehist-mode t)
+#+end_src
+
+** Company
+#+begin_src emacs-lisp
+  (use-package company
+    :config
+    (global-company-mode))
+#+end_src
+
+** Fuzzy Search
+#+begin_src emacs-lisp 
+(use-package fuzzy)
+#+end_src
+
+** Language-tool
+#+begin_src emacs-lisp
+        (use-package langtool
+          :elpaca (langtool :host github :repo "mhayashi1120/Emacs-langtool")
+          :init
+          (setq langtool-language-tool-jar "~/.config/emacs/LanguageTool/languagetool-commandline.jar")
+          (setq langtool-default-language "en-GB"))
+#+end_src
+
+* TODO Bibletex
+this can be achived with the HELM & IVY Package
+#+begin_src emacs-lisp
+    (use-package ivy-bibtex
+    :ensure t
+    :config
+    (setq bibtex-completion-bibliography '("~/Documents/Articles/bibliotext/dummy.bib")) ; Add the path to your .bib file
+    (setq bibtex-completion-library-path '("~/Documents/Articles/Medicine") ) ; Add the path to your PDFs or attach files
+    (setq bibtex-completion-notes-path "~/Documents/wORG/Org-ROAM/Alexandria/") ; Add the path to your notes directory
+
+    ;; Use Ivy for BibTeX selection
+    (setq bibtex-completion-cite-prompt-for-optional-arguments nil)
+    (ivy-bibtex-ivify-action ivy-bibtex-open-external ivy-bibtex)
+    (setq bibtex-completion-additional-search-fields '(keywords))
+    (setq bibtex-completion-notes-template-multiple-files
+          (concat
+          "#+TITLE: ${title}\n"
+          "#+ROAM_KEY: cite:${=key=}\n"))
+    )
+
+  ;; Set a keybinding for Ivy BibTeX
+;  (global-set-key (kbd "C-c C-b") 'ivy-bibtex)
+
+#+end_src
+
+** CITAR
+#+begin_src emacs-lisp 
+(use-package citar
+  :custom
+  (org-cite-global-bibliography '("~/bib/references.bib"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography)
+  ;; optional: org-cite-insert is also bound to C-c C-x C-@
+  :bind
+  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
+  
+    (use-package citar-org-roam
+    :after (citar org-roam)
+    :config (citar-org-roam-mode))
+#+end_src
+
+** ORG-REF
+#+begin_src emacs-lisp
+(use-package org-ref
+  :ensure t
+  :config
+  ;; Customize your Org-Ref settings here
+  )
+#+end_src
+
+** ORG-BIBLETEX
+#+begin_src emacs-lisp :tangle no
+(use-package org-roam-bibtex
+  :ensure t
+  :config
+  ;; Customize your Org-Roam-Bibtex settings here
+  )
+#+end_src
+
+** Filing System
+#+begin_src emacs-lisp
+(require 'organizer)
+#+end_src
+
+* R setup
+#+begin_src emacs-lisp 
+(use-package ess
+    :init (require 'ess-site)  ;; I don't know how else to get this working...
+    :commands R
+    :config
+    (setq ess-default-style 'RStudio-))
+#+end_src
+
+* wORG Microsome
+** Org Beautification
+#+begin_src emacs-lisp
+(setq org-startup-indented t
+        org-pretty-entities t
+        org-hide-emphasis-markers t
+        org-startup-with-inline-images t)
+#+end_src
+
+** Sticky Headers
+#+begin_src emacs-lisp
+(use-package org-sticky-header
+    :elpaca (org-sticky-header :host github :repo "alphapapa/org-sticky-header")
+    :after (org)
+  :ensure t
+  :after org
+  :hook (org-mode . org-sticky-header-mode)
+  :config
+  (setq org-sticky-header-full-path 'full)
+  (setq org-sticky-header-outline-path-separator " ❱ ")
+  (setq org-sticky-header-face-list
+        '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
+#+end_src
+
+** ORG-REMARK
+#+begin_src emacs-lisp
+  (use-package org-remark
+    :bind (;; :bind keyword also implicitly defers org-remark itself.
+           ;; Keybindings before :map is set for global-map.
+           ("C-c n m" . org-remark-mark)
+           ("C-c n l" . org-remark-mark-line)
+           :map org-remark-mode-map
+           ("C-c n o" . org-remark-open)
+           ("C-c n ]" . org-remark-view-next)
+           ("C-c n [" . org-remark-view-prev)
+           ("C-c n r" . org-remark-remove)
+           ("C-c n d" . org-remark-delete))
+    ;; Alternative way to enable `org-remark-global-tracking-mode' in
+    ;; `after-init-hook'.
+    ;; :hook (after-init . org-remark-global-tracking-mode)
+    :init
+    ;; It is recommended that `org-remark-global-tracking-mode' be
+    ;; enabled when Emacs initializes. Alternatively, you can put it to
+    ;; `after-init-hook' as in the comment above
+    (org-remark-global-tracking-mode +1)
+    :config
+    (use-package org-remark-info :after info :config (org-remark-info-mode +1))
+    (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
+    (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
+
+#+end_src
+
+** ORG-TEMPO | SHORT HAND
+#+begin_src emacs-lisp
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+#+end_src
+*** ORG-mediverse
+#+begin_src emacs-lisp
+(define-abbrev global-abbrev-table "<m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
+(setq-default abbrev-mode t)
+#+end_src
+
+** Directory (Yellow Pages)
+#+begin_src emacs-lisp
+  (setq org-directory "~/Documents/wORG/Colloquy")
+  (setq org-journal-dir "~/Documents/wORG/MyPersonal/My-Microsome")
+  (setq org-roam-directory "~/Documents/wORG/Org-ROAM/Alexandria")
+#+end_src
+
+** IDEA Org-Sidebar
+#+begin_src emacs-lisp :tangle no
+  (use-package org-ol-tree
+    :elpaca (org-ol-tree :host github :repo "Townk/org-ol-tree"))
+#+end_src
+** Super bullets
+#+begin_src emacs-lisp
+    (use-package org-superstar
+    :config
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+  (setq
+	     ;; Edit settings
+	     org-auto-align-tags nil
+	     org-tags-column 0
+	     org-catch-invisible-edits 'show-and-error
+	     org-special-ctrl-a/e t
+	     org-insert-heading-respect-content t
+
+	     ;; Org styling, hide markup etc.
+	     org-hide-emphasis-markers t
+	     org-pretty-entities t
+	     org-ellipsis "…"
+
+	     ;; Agenda styling
+	     org-agenda-tags-column 0
+	     org-agenda-block-separator ?─
+	     org-agenda-time-grid
+	     '((daily today require-timed)
+	       (800 1000 1200 1400 1600 1800 2000)
+	       " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+	     org-agenda-current-time-string
+	     "⭠ now ─────────────────────────────────────────────────")
+#+end_src
+
+** ENABLING OF TOC TO ALL ORG DOCUMENTS:
+#+begin_src emacs-lisp
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+#+end_src
+
+** Olivetti
+#+begin_src emacs-lisp
+        (use-package olivetti
+          :ensure t
+          :hook
+          (org-mode . olivetti-mode)
+          :config
+          (olivetti-set-width 160)
+  )
+#+end_src
+
+** Interleaving
+In the past, textbooks were sometimes published as interleaved editions. That meant, each page was followed by a blank page and ambitious students/scholars had the ability to take their notes directly in their copy of the textbook.
+#+begin_src emacs-lisp :tangle no
+(use-package org-noter
+  :config
+  ;; Your org-noter config ........
+  (require 'org-noter-pdftools))
+
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+                                                   (not org-noter-insert-note-no-questions)
+                                                 org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freepointer-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
+*** Dependency
+#+begin_src emacs-lisp
+(use-package pdf-tools)
+#+end_src
+
+#+RESULTS:
+
+** ORG-Presentation
+#+begin_src emacs-lisp
+         (use-package org-present
+           :ensure t
+           :config
+           (setq org-present-text-scale 3
+                 org-present-mode-hook
+                 (lambda ()
+                   (org-present-big)
+                   (org-display-inline-images)
+                   (org-present-hide-cursor)
+                   (org-present-read-only))))
+#+end_src
+
+** TEMPLATES
+*** Org-journal
+#+begin_src emacs-lisp
+(setq  org-journal-date-prefix "#+TITLE:"
+       org-journal-time-prefix "*  "
+       org-journal-date-format "%A, %F"
+       org-journal-file-format "%F.org")
+#+end_src
+*** Org-Roam
+#+begin_src emacs-lisp
+          ;; Org-roam Template ---------------------------------------------------------------------------------------------------
+  ;;       (setq org-roam-capture-templates
+  ;;             `(("d" "default" plain "%?"
+  ;;                 :target (file+head "${slug}.org" "#+title: ${title}")
+  ;;                 :unnarrowed t)))
+  (setq org-roam-capture-templates
+        `(("d" "Default" plain "%?"
+           :target (file+head "${slug}.org" "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+ROAM_TAGS: ${tag}")
+           :unnarrowed t)
+          ("r" "Roam Note" plain "%?"
+           :target (file+head "${slug}.org" "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+ROAM_TAGS: ${tag}\n\n* Thing that I have understood\n\n* Thing that I have 50-50% Confidence\n\n* Thing that I blew past my head and need to review\n\n* Research Article\n\n* Devil's Advocate Corner\n\n")
+           :unnarrowed t)))
+
+#+end_src
+
+#+RESULTS:
+| d | Default | plain | %? | :target | (file+head ${slug}.org #+title: ${title} |
+
+* ORG-ROAM
+** Installation
+#+begin_src emacs-lisp 
+          (use-package org-roam
+            :elpaca (org-roam :host github :repo "org-roam/org-roam"
+                       :files (:defaults "extensions/*") )
+            :init
+          (setq org-roam-v2-ack t)
+         (org-roam-db-autosync-mode)
+         (require 'org-roam-protocol)
+         :config
+  (setq org-id-location "~/Documents/wORG/Org-ROAM/Alexandria" )
+        (setq org-fold-catch-invisible-edits t)
+  )
+#+end_src
+** IDEA EMACS-sql
+#+begin_src emacs-lisp
+ ; (setq org-roam-db-location "~/Documents/wORG/Org-ROAM/Alexandria")
+#+end_src
+** ORG-ROAM-UI
+#+begin_src emacs-lisp
+(use-package org-roam-ui
+:after (org-roam)
+    :elpaca
+    (roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+            org-roam-ui-follow t
+            org-roam-ui-update-on-save t
+            org-roam-ui-open-on-start t))
+
+#+end_src
+
+** Caching
+#+begin_src emacs-lisp
+(setq org-roam-db-node-include-function
+      (lambda ()
+        (not (member "ATTACH" (org-get-tags)))))
+
+#+end_src
+
+* PLAN ORG-AGENDA :FixMe:
+** KEYWORDS
+#+begin_src emacs-lisp
+(setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "|" "TODO(t)" "In-Progress(r)" "|" "DONE(d)" "CANCELLED(c)" "|" "DEFERRED(f)")))
+#+end_src
+*** AGENDA KEYWORD FACES 
+#+begin_src emacs-lisp
+;; TODO: org-todo-keyword-faces
+(setq org-todo-keyword-faces
+      '(("IDEA" . (:foreground "DeepSkyBlue2" :weight bold))
+        ("PLAN" . (:foreground "orange red" :weight bold))
+        ("TODO" . (:foreground "HotPink2" :weight bold))
+        ("In-Progress" . (:foreground "MediumPurple3" :weight bold))
+        ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ("CANCELLED" . (:foreground "red3" :weight bold))
+        ("DEFERRED" . (:foreground "DarkOrange2" :weight bold))))
+
+#+end_src
+** ORG-REOCCURER
+For all the reoccuring tasks. [[https://github.com/mrcnski/org-recur/tree/master][more info]]
++ ==Examples:==
+  - `|+2|`: Recur every other day.
+  - `|+w|`: Recur every week.
+  - `|1|`: Recur on the first of every month.
+  - `|Thu|`: Recur every Thursday.
+  - `|Sun,Sat|`: Recur every Sunday and Saturday.*
+  - `|Wkdy|`: Recur every weekday.*
+#+begin_src emacs-lisp
+(use-package org-recur
+  :demand t)
+#+end_src
+
+** RE: file 
+#+begin_src emacs-lisp
+;; Customize the variable org-refile-targets to specify the refile targets.
+;; The example below sets it to refile headlines in the current buffer,
+;; as well as in the "~/path/to/destination.org" file.
+(setq org-refile-targets '((nil :maxlevel . 3)
+                           (org-agenda-files :maxlevel . 3)
+                           ("~/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
+
+;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
+(setq org-refile-use-outline-path t)
+
+;; Optionally, set org-outline-path-complete-in-steps to t for better completion.
+(setq org-outline-path-complete-in-steps t)
+
+;; Optionally, set org-refile-allow-creating-parent-nodes to t to allow creating non-existing parent nodes.
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
+
+** UI Improvement 
+*** Oragami
+#+begin_src emacs-lisp :tangle no
+  (use-package origami
+    :config
+    (defvar ap/org-super-agenda-auto-show-groups
+      '("Schedule" "Bills" "Priority A items" "Priority B items"))
+    (defun ap/org-super-agenda-origami-fold-default ()
+      "Fold certain groups by default in Org Super Agenda buffer."
+      (forward-line 3)
+      (cl-loop do (origami-forward-toggle-node (current-buffer) (point))
+               while (origami-forward-fold-same-level (current-buffer) (point)))
+      (--each ap/org-super-agenda-auto-show-groups
+        (goto-char (point-min))
+        (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
+          (origami-show-node (current-buffer) (point)))))
+
+    :hook ((org-agenda-mode . origami-mode)
+           (org-agenda-finalize . ap/org-super-agenda-origami-fold-default)))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package origami
+    :ensure t
+    :config
+    (global-origami-mode))
+
+#+end_src
+*** Org-heatmaps
+#+begin_src emacs-lisp
+      (use-package org-heatmap
+      :elpaca (org-heatmap :host github :repo "Elilif/org-heatmap")
+    :config
+  (add-hook 'org-mode-hook #'org-heatmap-mode))
+#+end_src
+*** Org-priorities
+- Chat gpt told me to do in=t this manner so here we go:
+  #+begin_src emacs-lisp
+    (setq org-highest-priority ?A       ; Highest priority is 'A'
+          org-lowest-priority ?D        ; Lowest priority is 'D'
+          org-default-priority ?C)      ; Default priority is 'C'
+
+    (setq org-priority-faces
+          '((?A . (:foreground "red" :weight bold :height 1.2))    ; Highest priority: ❗
+            (?B . (:foreground "orange" :weight bold :height 1.2)) ; Priority 'B': ⬆
+            (?C . (:foreground "yellow" :weight bold :height 1.2)) ; Priority 'C': ⬇
+            (?D . (:foreground "green" :weight bold :height 1.2))) ; Lowest priority: ☕
+            )
+
+  #+end_src  
+*** IDEA Org-Fancy-Priorities-List
+#+begin_src emacs-lisp 
+      (use-package org-fancy-priorities
+	:ensure t
+	:hook (org-mode . org-fancy-priorities-mode))
+
+   (setq org-fancy-priorities-list '((?A . "❗")
+					   (?B . "⬆")
+					   (?C . "⬇")
+					   (?D . "☕")))
+#+end_src
+** ORG-CalDAv
+#+begin_src emacs-lisp
+(setq org-caldav-url "https://cloud.disroot.org/remote.php/dav/calendars/xanaus")
+(setq org-caldav-calendar-id "transmogrify")
+(setq org-caldav-inbox "~/Documents/wORG/My-Personal/Transmogrify/Sync.org")
+(setq org-caldav-backup-file "~/Documents/My-Personal/Transmogrify/Niflheiem.org")
+(setq org-icalendar-timezone "IST")
+(setq org-caldav-files '("~/Documents/wORG/My-Personal/Transmogrify/Hammurabi's-Code.org""~/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org"))
+(setq org-icalendar-include-todo 'all
+    org-caldav-sync-todo t)
+#+end_src
+
+* ORG-JOURNAL
+#+begin_src emacs-lisp
+            (use-package org-journal
+              :config
+              (setq org-journal-dir "~/Documents/wORG/My-Personal/My-Microsome"))
+#+end_src
+* IDEA RSS
+#+begin_src emacs-lisp
+              (use-package elfeed
+                :ensure t)
+
+        (use-package elfeed-score
+          :ensure t
+          :config
+          (elfeed-score-enable))
+       ; (require 'zotearo)
+#+end_src
+* Vterm
+#+begin_src emacs-lisp
+  (use-package eat
+ :elpaca (eat 
+       :host codeberg
+       :repo "akib/emacs-eat"
+       :files ("*.el" ("term" "term/*.el") "*.texi"
+               "*.ti" ("terminfo/e" "terminfo/e/*")
+               ("terminfo/65" "terminfo/65/*")
+               ("integration" "integration/*")
+               (:exclude ".dir-locals.el" "*-tests.el"))))
+#+end_src
+
+#+RESULTS:
+
+* Custom Configuration
+#+begin_src emacs-lisp
+  (setq custom-file "~/.config/emacs/custom.el")
+  (when (file-exists-p custom-file)
+    (load custom-file))
+;; Local Variables:
+;; no-byte-compile: t
+;; End:
+#+end_src
+
