@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
   ;; The loading of the Vibraniums
-        (add-to-list 'load-path "~/.config/emacs/vibraniums/")
+        (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
         ;; The Elpaca Package Manager
         (require 'elpaca-setup)
 
@@ -21,7 +21,9 @@
   'org-babel-load-languages
   '((emacs-lisp . t)
     (python . t)
-    (R . t)))
+    (R . t)
+    (scheme . t)
+    ))
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
 (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
@@ -71,38 +73,32 @@
     ;; Enable line numbers
     (global-display-line-numbers-mode t)
 
-  (use-package nerd-icons
-  ;; :custom
-  ;; The Nerd Font you want to use in GUI
-  ;; "Symbols Nerd Font Mono" is the default and is recommended
-  ;; but you can use any other Nerd Font if you want
-  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
-  )
+  (use-package nerd-icons)
 
 (use-package dashboard
-          :config
-          (dashboard-setup-startup-hook)
-        (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
-      ;; Set the title
-      (setq dashboard-banner-logo-title "Welcome to Forgers Board")
-      ;; Set the banner
-;;    (setq dashboard-startup-banner 'logo)
-      (setq dashboard-startup-banner "/home/Dr.Eccentric/Pictures/DP/CosmoDoc-modified.png")
-      ;; Value can be
-      ;; - nil to display no banner
-      ;; - 'official which displays the official emacs logo
-      ;; - 'logo which displays an alternative emacs logo
-      ;; - 1, 2 or 3 which displays one of the text banners
-      ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
-      ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+            :config
+            (dashboard-setup-startup-hook)
+          (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
+        ;; Set the title
+        (setq dashboard-banner-logo-title "Welcome to Forgers Board")
+        ;; Set the banner
+  ;;    (setq dashboard-startup-banner 'logo)
+        (setq dashboard-startup-banner "/home/Dr.Eccentric/Pictures/DP/CosmoDoc-modified.png")
+        ;; Value can be
+        ;; - nil to display no banner
+        ;; - 'official which displays the official emacs logo
+        ;; - 'logo which displays an alternative emacs logo
+        ;; - 1, 2 or 3 which displays one of the text banners
+        ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
+        ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
 
-      ;; Content is not centered by default. To center, set
-      (setq dashboard-center-content t)
-
-      ;; To disable shortcut "jump" indicators for each section, set
-      (setq dashboard-show-shortcuts t)
-  (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
-  (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
+        ;; Content is not centered by default. To center, set
+        (setq dashboard-center-content t)
+(add-hook 'dashboard-setup-startup-hook (lambda () (display-line-numbers-mode 0)))
+        ;; To disable shortcut "jump" indicators for each section, set
+        (setq dashboard-show-shortcuts t)
+    (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
+    (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
 
 (use-package ef-themes
   :demand t
@@ -123,12 +119,16 @@
     :config
     (setq which-key-idle-delay 1))
 
+(use-package bufler
+  :elpaca (bufler :fetcher github :repo "alphapapa/bufler.el"
+                  :files (:defaults (:exclude "helm-bufler.el"))))
+
 (use-package smartparens-config
       :elpaca (smartpares-config :host github :repo "Fuco1/smartparens")
       :config
-     (smartparens-global-mode t)
+     (smartparens-global-mode t) )
      ;; Customize smartparens behavior for ~
-(sp-pair "~" "~" :trigger "~"))
+;(sp-pair "~" "~" :trigger "~"))
 
 (use-package all-the-icons
   :ensure t
@@ -189,10 +189,10 @@
                                 ("mkv" . "mpv"))))
 
 (use-package neotree
-        :ensure t
-        :config
-        (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-)
+       :ensure t
+      :config
+       (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+(add-hook 'find-file-hook (lambda () (display-line-numbers-mode 0))))
 
 (use-package general
    :config
@@ -257,16 +257,10 @@
 
 (use-package fuzzy)
 
-(use-package langtool
-  :elpaca (langtool :host github :repo "mhayashi1120/Emacs-langtool")
-  :init
-  (setq langtool-language-tool-jar "~/.config/emacs/LanguageTool/languagetool-commandline.jar")
-  (setq langtool-default-language "en-GB"))
-
 (use-package ivy-bibtex
     :ensure t
     :config
-    (setq bibtex-completion-bibliography '("~/Documents/Articles/bibliotext/dummy.bib")) ; Add the path to your .bib file
+    (setq bibtex-completion-bibliography '("~/Documents/Articles/bibliotext/references.bib")) ; Add the path to your .bib file
     (setq bibtex-completion-library-path '("~/Documents/Articles/Medicine") ) ; Add the path to your PDFs or attach files
     (setq bibtex-completion-notes-path "~/Documents/wORG/Org-ROAM/Alexandria/") ; Add the path to your notes directory
 
@@ -285,7 +279,7 @@
 
 (use-package citar
   :custom
-  (org-cite-global-bibliography '("~/bib/references.bib"))
+  (org-cite-global-bibliography '("/home/Dr.Eccentric/Documents/Articles/bibliotext/references.bib"))
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
@@ -304,18 +298,51 @@
   ;; Customize your Org-Ref settings here
   )
 
-(require 'organizer)
+(use-package org-roam-bibtex
+  :ensure t
+  :config
+  ;; Customize your Org-Roam-Bibtex settings here
+  )
 
-(use-package ess
-    :init (require 'ess-site)  ;; I don't know how else to get this working...
-    :commands R
-    :config
-    (setq ess-default-style 'RStudio-))
+(use-package ob-mermaid
+  :ensure t
+  :config
+  (org-babel-do-load-languages 'org-babel-load-languages '((mermaid . t))))
 
 (setq org-startup-indented t
-        org-pretty-entities t
-        org-hide-emphasis-markers t
-        org-startup-with-inline-images t)
+          org-pretty-entities t
+          org-hide-emphasis-markers t
+          org-startup-with-inline-images t)
+(add-hook 'org-mode-hook (lambda () (display-line-numbers-mode 0)))
+
+(use-package org-modern
+    :elpaca(org-modern :host github :repo "minad/org-modern")
+    :init
+(with-eval-after-load 'org (global-org-modern-mode))
+     )
+
+   (setq
+    ;; Edit settings
+    org-auto-align-tags nil
+    org-tags-column 0
+    org-catch-invisible-edits 'show-and-error
+    org-special-ctrl-a/e t
+    org-insert-heading-respect-content t
+
+    ;; Org styling, hide markup etc.
+    org-hide-emphasis-markers t
+    org-pretty-entities t
+    org-ellipsis "…"
+
+    ;; Agenda styling
+    org-agenda-tags-column 0
+    org-agenda-block-separator ?─
+    org-agenda-time-grid
+    '((daily today require-timed)
+      (800 1000 1200 1400 1600 1800 2000)
+      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+    org-agenda-current-time-string
+    "◀── now ─────────────────────────────────────────────────")
 
 (use-package org-sticky-header
     :elpaca (org-sticky-header :host github :repo "alphapapa/org-sticky-header")
@@ -329,111 +356,6 @@
   (setq org-sticky-header-face-list
         '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
 
-(use-package org-remark
-  :bind (;; :bind keyword also implicitly defers org-remark itself.
-         ;; Keybindings before :map is set for global-map.
-         ("C-c n m" . org-remark-mark)
-         ("C-c n l" . org-remark-mark-line)
-         :map org-remark-mode-map
-         ("C-c n o" . org-remark-open)
-         ("C-c n ]" . org-remark-view-next)
-         ("C-c n [" . org-remark-view-prev)
-         ("C-c n r" . org-remark-remove)
-         ("C-c n d" . org-remark-delete))
-  ;; Alternative way to enable `org-remark-global-tracking-mode' in
-  ;; `after-init-hook'.
-  ;; :hook (after-init . org-remark-global-tracking-mode)
-  :init
-  ;; It is recommended that `org-remark-global-tracking-mode' be
-  ;; enabled when Emacs initializes. Alternatively, you can put it to
-  ;; `after-init-hook' as in the comment above
-  (org-remark-global-tracking-mode +1)
-  :config
-  (use-package org-remark-info :after info :config (org-remark-info-mode +1))
-  (use-package org-remark-eww  :after eww  :config (org-remark-eww-mode +1))
-  (use-package org-remark-nov  :after nov  :config (org-remark-nov-mode +1)))
-
-(require 'org-tempo)
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
-
-(define-abbrev global-abbrev-table "<m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
-(setq-default abbrev-mode t)
-
-(setq org-directory "~/Documents/wORG/Colloquy")
-(setq org-journal-dir "~/Documents/wORG/MyPersonal/My-Microsome")
-(setq org-roam-directory "~/Documents/wORG/Org-ROAM/Alexandria")
-
-(use-package org-superstar
-  :config
-(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
-(setq
-	   ;; Edit settings
-	   org-auto-align-tags nil
-	   org-tags-column 0
-	   org-catch-invisible-edits 'show-and-error
-	   org-special-ctrl-a/e t
-	   org-insert-heading-respect-content t
-
-	   ;; Org styling, hide markup etc.
-	   org-hide-emphasis-markers t
-	   org-pretty-entities t
-	   org-ellipsis "…"
-
-	   ;; Agenda styling
-	   org-agenda-tags-column 0
-	   org-agenda-block-separator ?─
-	   org-agenda-time-grid
-	   '((daily today require-timed)
-	     (800 1000 1200 1400 1600 1800 2000)
-	     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-	   org-agenda-current-time-string
-	   "⭠ now ─────────────────────────────────────────────────")
-
-(use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
-
-(use-package olivetti
-        :ensure t
-        :hook
-        (org-mode . olivetti-mode)
-        :config
-        (olivetti-set-width 160)
-)
-
-(use-package pdf-tools)
-
-(use-package org-present
-  :ensure t
-  :config
-  (setq org-present-text-scale 3
-        org-present-mode-hook
-        (lambda ()
-          (org-present-big)
-          (org-display-inline-images)
-          (org-present-hide-cursor)
-          (org-present-read-only))))
-
-(setq  org-journal-date-prefix "#+TITLE:"
-       org-journal-time-prefix "*  "
-       org-journal-date-format "%A, %F"
-       org-journal-file-format "%F.org")
-
-;; Org-roam Template ---------------------------------------------------------------------------------------------------
-;;       (setq org-roam-capture-templates
-;;             `(("d" "default" plain "%?"
-;;                 :target (file+head "${slug}.org" "#+title: ${title}")
-;;                 :unnarrowed t)))
-(setq org-roam-capture-templates
-      `(("d" "Default" plain "%?"
-         :target (file+head "${slug}.org" "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+ROAM_TAGS: ${tag}")
-         :unnarrowed t)
-        ("r" "Roam Note" plain "%?"
-         :target (file+head "${slug}.org" "#+title: ${title}\n#+created: %u\n#+last_modified: %U\n#+ROAM_TAGS: ${tag}\n\n* Thing that I have understood\n\n* Thing that I have 50-50% Confidence\n\n* Thing that I blew past my head and need to review\n\n* Research Article\n\n* Devil's Advocate Corner\n\n")
-         :unnarrowed t)))
-
 (use-package org-roam
           :elpaca (org-roam :host github :repo "org-roam/org-roam"
                      :files (:defaults "extensions/*") )
@@ -446,7 +368,8 @@
       (setq org-fold-catch-invisible-edits t)
 )
 
-; (setq org-roam-db-location "~/Documents/wORG/Org-ROAM/Alexandria")
+(use-package emacsql-sqlite :ensure t)
+(setq org-roam-database-connector 'sqlite-builtin)
 
 (use-package org-roam-ui
 :after (org-roam)
@@ -466,7 +389,85 @@
       (lambda ()
         (not (member "ATTACH" (org-get-tags)))))
 
-(setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "|" "TODO(t)" "In-Progress(r)" "|" "DONE(d)" "CANCELLED(c)" "|" "DEFERRED(f)")))
+(use-package org-transclusion
+  :after org)
+
+(use-package org-glossary
+  :elpaca (:host github :repo "tecosaur/org-glossary"))
+
+(setq org-directory "~/Documents/wORG/Colloquy")
+(setq org-journal-dir "~/Documents/wORG/MyPersonal/My-Microsome")
+(setq org-roam-directory "~/Documents/wORG/Org-ROAM/Alexandria")
+
+(use-package org-remark
+  ;; Alternative way to enable `org-remark-global-tracking-mode' in
+  ;; `after-init-hook'.
+  ;; :hook (after-init . org-remark-global-tracking-mode)
+  :init
+  ;; It is recommended that `org-remark-global-tracking-mode' be
+  ;; enabled when Emacs initializes. Alternatively, you can put it to
+  ;; `after-init-hook' as in the comment above
+  (org-remark-global-tracking-mode +1))
+
+  ;; (use-package org-remark-info
+  ;;   :after info
+  ;;   :config
+  ;;    (org-remark-info-mode +1))
+
+  ;; (use-package org-remark-eww
+  ;;    :after eww
+  ;;    :config
+  ;;     (org-remark-eww-mode +1))
+
+  ;; (use-package org-remark-nov
+  ;;    :after nov
+  ;;    :config
+  ;;     (org-remark-nov-mode +1))
+
+(use-package org-roam-timestamps
+         :after org-roam
+         :config (org-roam-timestamps-mode))
+(setq org-roam-timestamps-timestamp-parent-file t)
+  (setq org-roam-timestamps-remember-timestamps t)
+  (setq org-roam-timestamps-minimum-gap 3600)
+
+(require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("mer" . "src mermaid"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+
+(define-abbrev global-abbrev-table "m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
+(setq-default abbrev-mode t)
+
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+(use-package olivetti
+        :ensure t
+        :hook
+        (org-mode . olivetti-mode)
+        :init
+        (setq olivetti-body-width 140)
+)
+
+(setq org-roam-capture-templates
+      `(("d" "Default" plain "%?"
+         :target (file+head "${slug}.org" "#+title:${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t")
+         :unnarrowed t)
+        ("r" "Roam Note" plain "%?"
+         :target (file+head "${slug}.org" "#+title: ${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t\n\n* Thing that I have understood\n\n* Thing that I have 50-50% Confidence\n\n* Thing that I blew past my head and need to review\n\n* Research Article\n\n* Devil's Advocate Corner\n\n")
+         :unnarrowed t)))
+
+(use-package org-journal
+  :config
+  (setq org-journal-dir "~/Documents/wORG/My-Personal/My-Microsome"))
+
+(setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
+(setq org-log-done t)
+
+(setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "SCHEDULE(s)" "|" "TODO(t)" "In-Progress(r)" "DONE(d)" "|" "CANCELLED(c)" "DEFERRED(f)")))
 
 ;; TODO: org-todo-keyword-faces
 (setq org-todo-keyword-faces
@@ -476,36 +477,8 @@
         ("In-Progress" . (:foreground "MediumPurple3" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
         ("CANCELLED" . (:foreground "red3" :weight bold))
-        ("DEFERRED" . (:foreground "DarkOrange2" :weight bold))))
-
-(use-package org-recur
-  :demand t)
-
-;; Customize the variable org-refile-targets to specify the refile targets.
-;; The example below sets it to refile headlines in the current buffer,
-;; as well as in the "~/path/to/destination.org" file.
-(setq org-refile-targets '((nil :maxlevel . 3)
-                           (org-agenda-files :maxlevel . 3)
-                           ("~/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
-
-;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
-(setq org-refile-use-outline-path t)
-
-;; Optionally, set org-outline-path-complete-in-steps to t for better completion.
-(setq org-outline-path-complete-in-steps t)
-
-;; Optionally, set org-refile-allow-creating-parent-nodes to t to allow creating non-existing parent nodes.
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-
-(use-package origami
-    :ensure t
-    :config
-    (global-origami-mode))
-
-(use-package org-heatmap
-    :elpaca (org-heatmap :host github :repo "Elilif/org-heatmap")
-  :config
-(add-hook 'org-mode-hook #'org-heatmap-mode))
+        ("DEFERRED" . (:foreground "DarkOrange2" :weight bold))
+        ("SCHEDULE" . (:foreground "orange2" :weight bold))))
 
 (setq org-highest-priority ?A       ; Highest priority is 'A'
       org-lowest-priority ?D        ; Lowest priority is 'D'
@@ -515,30 +488,29 @@
       '((?A . (:foreground "red" :weight bold :height 1.2))    ; Highest priority: ❗
         (?B . (:foreground "orange" :weight bold :height 1.2)) ; Priority 'B': ⬆
         (?C . (:foreground "yellow" :weight bold :height 1.2)) ; Priority 'C': ⬇
-        (?D . (:foreground "green" :weight bold :height 1.2))) ; Lowest priority: ☕
-        )
+        (?D . (:foreground "green" :weight bold :height 1.2))  ; Lowest priority: ☕
+        (?1 . (:foreground "purple" :weight bold :height 1.2)) ; Priority '1': ⚡
+        (?2 . (:foreground "blue" :weight bold :height 1.2))   ; Priority '2': ⮬
+        (?3 . (:foreground "cyan" :weight bold :height 1.2))   ; Priority '3': ⮮
+        (?4 . (:foreground "green" :weight bold :height 1.2))  ; Priority '4': ☕
+        (?I . (:foreground "Pink" :weight bold :height 1.2))))  ; Priority 'I' (Important): ❗
 
-(use-package org-fancy-priorities
-     :ensure t
-     :hook (org-mode . org-fancy-priorities-mode))
+(use-package org-recur)
 
-(setq org-fancy-priorities-list '((?A . "❗")
-					(?B . "⬆")
-					(?C . "⬇")
-					(?D . "☕")))
+(use-package org-super-agenda
+:ensure t
+:init
+(setq org-super-agenda-mode 1))
 
-(setq org-caldav-url "https://cloud.disroot.org/remote.php/dav/calendars/xanaus")
-(setq org-caldav-calendar-id "transmogrify")
-(setq org-caldav-inbox "~/Documents/wORG/My-Personal/Transmogrify/Sync.org")
-(setq org-caldav-backup-file "~/Documents/My-Personal/Transmogrify/Niflheiem.org")
-(setq org-icalendar-timezone "IST")
-(setq org-caldav-files '("~/Documents/wORG/My-Personal/Transmogrify/Hammurabi's-Code.org""~/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org"))
-(setq org-icalendar-include-todo 'all
-    org-caldav-sync-todo t)
+(use-package org-hyperscheduler
+    :elpaca (org-hyperscheduler :fetcher github :repo "dmitrym0/org-hyperscheduler"))
+  ;(org-hyper-schedule-mode))
+(setq org-hyperscheduler-exclude-from-org-roam t)
 
-(use-package org-journal
+(use-package calfw)
+  (use-package calfw-org
   :config
-  (setq org-journal-dir "~/Documents/wORG/My-Personal/My-Microsome"))
+(setq cfw:org-overwrite-default-keybinding t))
 
 (use-package elfeed
          :ensure t)
