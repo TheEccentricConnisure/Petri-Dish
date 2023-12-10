@@ -356,6 +356,12 @@
   (setq org-sticky-header-face-list
         '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
 
+(use-package org-special-block-extras
+    :elpaca (org-special-block-extras :fetcher github :repo
+  "alhassy/org-special-block-extras"))
+  ;; ⟨1⟩ Have this always active in Org buffers
+(add-hook #'org-mode-hook #'org-special-block-extras-mode)
+
 (use-package org-roam
           :elpaca (org-roam :host github :repo "org-roam/org-roam"
                      :files (:defaults "extensions/*") )
@@ -390,7 +396,9 @@
         (not (member "ATTACH" (org-get-tags)))))
 
 (use-package org-transclusion
-  :after org)
+:elpaca (org-transclusion :host github :repo "nobiot/org-transclusion")
+  :after org
+      )
 
 (use-package org-glossary
   :elpaca (:host github :repo "tecosaur/org-glossary"))
@@ -440,6 +448,8 @@
 (define-abbrev global-abbrev-table "m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
 (setq-default abbrev-mode t)
 
+(use-package org-side-tree)
+
 (use-package toc-org
     :commands toc-org-enable
     :init (add-hook 'org-mode-hook 'toc-org-enable))
@@ -451,6 +461,8 @@
         :init
         (setq olivetti-body-width 140)
 )
+
+(use-package org-noter)
 
 (setq org-roam-capture-templates
       `(("d" "Default" plain "%?"
@@ -465,7 +477,8 @@
   (setq org-journal-dir "~/Documents/wORG/My-Personal/My-Microsome"))
 
 (setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
-(setq org-log-done t)
+  (setq org-log-done t)
+(setq org-agenda-files '("~/Documents/wORG/My-Personal/Transmogrify"))
 
 (setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "SCHEDULE(s)" "|" "TODO(t)" "In-Progress(r)" "DONE(d)" "|" "CANCELLED(c)" "DEFERRED(f)")))
 
@@ -520,6 +533,22 @@
    :config
    (elfeed-score-enable))
 ; (require 'zotearo)
+
+(use-package calibredb
+       :config
+       (setq calibredb-root-dir "~/NEXTCLOUD@DISROOT/Clibre")
+       (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+       (setq calibredb-library-alist '(("~/NEXTCLOUD@DISROOT/Clibre")
+                                       ("~/Documents/Articles/Medicine")
+                                       ("~/Documents/Articles/Personal")
+       ))
+   (setq calibredb-virtual-library-alist '(("1. Development - work" . "work \\(pdf\\|epub\\)")
+                                           ("2. Read it later" . "Readit epub")
+                                           ("3. Development - rust" . "rust")))
+ (setq calibredb-format-character-icons t)
+)
+(use-package nov)
+(use-package org-calibre-notes)
 
 (use-package eat
 :elpaca (eat 

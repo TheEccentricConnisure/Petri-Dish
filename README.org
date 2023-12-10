@@ -69,6 +69,7 @@
   - [[#org-agenda][Org-AGENDA]]
   - [[#idea-calfw][IDEA CALFW]]
 - [[#idea-rss][IDEA RSS]]
+- [[#calibre][CALIBRE]]
 - [[#terminal][TERMINAL]]
 - [[#custom-configuration][Custom Configuration]]
 
@@ -406,12 +407,12 @@ This section configures basic UI settings that remove unneeded elements to make 
 #+end_src
 
 * Space-macs
-#+begin_src emacs-lisp :tangle no 
-(defvar my-private-dir (expand-file-name "private" user-emacs-directory)
-  "Directory for storing private configuration files.")
+#+begin_src emacs-lisp :tangle no
+  (defvar my-private-dir (expand-file-name "private" user-emacs-directory)
+    "Directory for storing private configuration files.")
 
-  (load-file "~/.config/emacs/vibraniums/spacemacs_module_for_doom/config.el")
-  ;(require 'config.el)
+    (load-file "~/.config/emacs/vibraniums/spacemacs_module_for_doom/config.el")
+    ;(require 'config.el)
 #+end_src
 
 * Predicting layers
@@ -640,8 +641,17 @@ this can be achived with the HELM & IVY Package
   (setq org-sticky-header-face-list
         '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
 #+end_src
+
+*** ADMONITION
+#+begin_src emacs-lisp
+    (use-package org-special-block-extras
+    :elpaca (org-special-block-extras :fetcher github :repo
+  "alhassy/org-special-block-extras"))
+  ;; ⟨1⟩ Have this always active in Org buffers
+(add-hook #'org-mode-hook #'org-special-block-extras-mode)
+#+end_src
 ** ORG-ROAM
-*** Installation
+*** Installation 
 #+begin_src emacs-lisp 
           (use-package org-roam
             :elpaca (org-roam :host github :repo "org-roam/org-roam"
@@ -689,14 +699,16 @@ this can be achived with the HELM & IVY Package
 *** TODO Block-ref
 CLOSED: [2023-12-06 Wed 01:14]
 #+begin_src emacs-lisp
-    (use-package org-transclusion
-      :after org)
+          (use-package org-transclusion
+:elpaca (org-transclusion :host github :repo "nobiot/org-transclusion")
+  :after org
+      )
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
-    (use-package roam-block
+     (use-package roam-block
       :elpaca (roam-block :host github :repo "Kinneyzhang/roam-block")
-      ;:hook (after-init . roam-block-mode)
+      :hook (after-init . roam-block-mode)
       :config
   (setq roam-block-home '("~/Documents/wORG/Org-ROAM/Alexandria/roamblockref/")
          roam-block-ref-highlight t
@@ -771,10 +783,8 @@ CLOSED: [2023-12-06 Wed 01:14]
 #+end_src
 
 ** IDEA Org-Sidebar
-#+begin_src emacs-lisp :tangle no 
-
-  (use-package org-ol-tree
-    :elpaca (org-ol-tree :host github :repo "basaran/org-ol-tree"))
+#+begin_src emacs-lisp
+  (use-package org-side-tree)
 #+end_src
 ** ENABLING OF TOC TO ALL ORG DOCUMENTS:
 #+begin_src emacs-lisp
@@ -796,7 +806,7 @@ CLOSED: [2023-12-06 Wed 01:14]
 
 ** TODO Interleaving
 In the past, textbooks were sometimes published as interleaved editions. That meant, each page was followed by a blank page and ambitious students/scholars had the ability to take their notes directly in their copy of the textbook.
-#+begin_src emacs-lisp :tangle no 
+#+begin_src emacs-lisp 
   (use-package org-noter)
 #+end_src
 
@@ -857,6 +867,8 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 #+begin_src emacs-lisp
   (setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
   (setq org-log-done t)
+(setq org-agenda-files '("~/Documents/wORG/My-Personal/Transmogrify"))
+
 #+end_src
 
 *** GTD States
@@ -954,6 +966,25 @@ In the past, textbooks were sometimes published as interleaved editions. That me
           :config
           (elfeed-score-enable))
        ; (require 'zotearo)
+#+end_src
+
+* CALIBRE
+#+begin_src emacs-lisp 
+       (use-package calibredb
+         :config
+         (setq calibredb-root-dir "~/NEXTCLOUD@DISROOT/Clibre")
+         (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+         (setq calibredb-library-alist '(("~/NEXTCLOUD@DISROOT/Clibre")
+                                         ("~/Documents/Articles/Medicine")
+                                         ("~/Documents/Articles/Personal")
+         ))
+     (setq calibredb-virtual-library-alist '(("1. Development - work" . "work \\(pdf\\|epub\\)")
+                                             ("2. Read it later" . "Readit epub")
+                                             ("3. Development - rust" . "rust")))
+   (setq calibredb-format-character-icons t)
+  )
+  (use-package nov)
+  (use-package org-calibre-notes)
 #+end_src
 * TERMINAL
 #+begin_src emacs-lisp

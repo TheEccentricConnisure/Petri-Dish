@@ -9,12 +9,11 @@
 (leader-key
   "f"'(:ignore t :wk "Filling")
   "f /" '(find-file :wk "Find file")
-  "f r" '(org-refile :wk "REfile")
 )
 
 (leader-key
   "s" '(:ignore t :wk "Shell") 
-  "s t" '(eshell :wk "Eshell Launcher"))
+  "s t" '(eat :wk "Eshell Launcher"))
 
 (leader-key
   "w" '(:ignore t :wk "Window") 
@@ -35,13 +34,17 @@
   "b N" '(evil-buffer-new :wk "Open New Buffer"))
 
 (leader-key
-    "r" '(:ignore t :wk "roam")
-    "r i" '(org-roam-ui-mode :wk "Obsidian")
-    "r n" '(:ignore t :wk "Notes")
-    "r n n" '(org-roam-capture :wk "new note")
-    "r n f" '(org-roam-node-find :wk "Find the Note")
-    "r n m" '(completion-at-point :wk "Mapping Nodes")
-    )
+               "r" '(:ignore t :wk "roam")
+               "r i" '(org-roam-ui-mode :wk "Obsidian")
+               "r n" '(:ignore t :wk "Notes")
+"rg" '(org-roam-graph :wk "Graph")
+               "r n n" '(org-roam-capture :wk "new note")
+               "r n f" '(org-roam-node-find :wk "Find the Note")
+               "r n m" '(completion-at-point :wk "Mapping Nodes")
+     "r a" '(:ignore t :wk "add info")
+           "r a t" '(org-roam-tag-add :wk "Add File-tag")
+           "r a r" '(org-roam-ref-add :wk "Add reference")
+               )
 
 (leader-key
 "n" '(:ignore t :wk "org-remark")
@@ -59,8 +62,14 @@
   )
 
 (leader-key
-  "o" '(:ignore t :wk "Org")
-  "o t" '(org-timmer :wk "start timer")
-  "o a" '(org-agenda :wk "Org-Agenda") )
+      "o" '(:ignore t :wk "Org")
+      "o t" '(org-timmer :wk "start timer")
+      "o r" '(org-refile :wk "RE-file")
+"oaa" '(org-agenda :wk "Agenda")
+"oaa" '(org-agenda :wk "Today")
+"oaw" '(org-agenda-week :wk "Week")
+"oam" '(org-agenda-month :wk "Month")
+"oay" '(org-agenda-year :wk "Year")
+ )
 
 (provide 'hashmap)
