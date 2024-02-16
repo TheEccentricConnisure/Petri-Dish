@@ -220,7 +220,7 @@ This section configures basic UI settings that remove unneeded elements to make 
 ** ALL THE ICONS
 #+begin_src emacs-lisp
 (use-package all-the-icons
-  :ensure t
+  :demand t
   :if (display-graphic-p))
 #+end_src
 
@@ -402,7 +402,7 @@ this helps to open specific files
 * NEO-TREE
 #+begin_src emacs-lisp
          (use-package neotree
-           :ensure t
+           :demand t
           :config
            (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
     (add-hook 'find-file-hook (lambda () (display-line-numbers-mode 0))))
@@ -477,7 +477,7 @@ this helps to open specific files
 ** CONSULT
 #+begin_src emacs-lisp 
   (use-package consult
-  :ensure t)
+  :demand t)
 #+end_src
 
 * History
@@ -497,7 +497,7 @@ this helps to open specific files
 * MERMAID Setup
 #+begin_src emacs-lisp
 (use-package ob-mermaid
-  :ensure t
+  :demand t
   :config
   (org-babel-do-load-languages 'org-babel-load-languages '((mermaid . t))))
 #+end_src
@@ -556,7 +556,7 @@ this helps to open specific files
 (use-package org-sticky-header
     :elpaca (org-sticky-header :host github :repo "alphapapa/org-sticky-header")
     :after (org)
-  :ensure t
+  :demand t
   :after org
   :hook (org-mode . org-sticky-header-mode)
   :config
@@ -667,7 +667,7 @@ CLOSED: [2023-12-06 Wed 01:14]
 ** Olivetti
 #+begin_src emacs-lisp
         (use-package olivetti
-          :ensure t
+          :demand t
           :hook
           (org-mode . olivetti-mode)
           :init
@@ -694,7 +694,7 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 ** consult-org
 #+begin_src emacs-lisp
 (use-package consult-org-roam
-   :ensure t
+   :demand t
    :after org-roam
    :init
    (require 'consult-org-roam)
@@ -724,7 +724,7 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 ** ORG-Presentation
 #+begin_src emacs-lisp :tangle no
   (use-package org-present
-    :ensure t
+    :demand t
     :config
     (setq org-present-text-scale 3
           org-present-mode-hook
@@ -825,7 +825,7 @@ CLOSED: [2024-02-13 Tue 14:08]
 *** ORG-SUPERAGENDA
 #+begin_src emacs-lisp :tangle no
     (use-package org-super-agenda
-  :ensure t
+  :demand t
   :init
   (setq org-super-agenda-mode 1))
 #+end_src
@@ -864,10 +864,10 @@ CLOSED: [2024-02-13 Tue 14:08]
 * IDEA RSS
 #+begin_src emacs-lisp
   (use-package elfeed
-           :ensure t)
+           :demand t)
 
    (use-package elfeed-score
-     :ensure t
+     :demand t
      :config
      (elfeed-score-enable))
   ; (require 'zotearo)

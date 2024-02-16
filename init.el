@@ -1,6 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 
-  ;; The loading of the Vibraniums
+; The loading of the Vibraniums
         (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
         ;; The Elpaca Package Manager
         (require 'elpaca-setup)
@@ -9,13 +9,15 @@
 
 ;; Automatically tangle our config.org config file when we save it
 (defun dr/org-babel-tangle-config ()
-  (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.config/emacs/README.org"))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "~/.config/emacs/README.org"))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle)
+              (load-file "~/.config/emacs/init.el")
+        )))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'dr/org-babel-tangle-config)))
+ (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'dr/org-babel-tangle-config nil 'make-it-local)))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -30,9 +32,6 @@
 
 (setq backup-directory-alist '((".*" . "~/.config/emacs/.trash")))
 
-(setq user-full-name "Ivan Pereira"
-      user-mail-address "ivan.pereira@mailfence.com")
-
 ;; Disable line numbers for some modes
  (dolist (mode '(
                 term-mode-hook
@@ -41,39 +40,78 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; Set the default font
-    (set-face-attribute 'default nil
-		     :font "Input Sans"
-		     :height 180
-		     :weight 'medium)
-   (set-face-attribute 'variable-pitch nil
-    :font "Input Sans"
-    :height 180
-    :weight 'medium)
-    (set-face-attribute 'fixed-pitch nil
-    :font "Input Mono"
-    :height 180
-    :weight 'medium)
-  ;; Makes commented text and keywords italics.
-  ;; This is working in emacsclient but not emacs.
-  ;; Your font must have an italic face available.
-  (set-face-attribute 'font-lock-comment-face nil
-    :slant 'italic)
-  (set-face-attribute 'font-lock-keyword-face nil
-    :slant 'italic)
+(setq default-frame-alist '((undecorated . t)))
+(add-to-list 'default-frame-alist '(internal-border-width . 5))
+(add-to-list 'default-frame-alist '(drag-internal-border . 1))
 
-  ;; This sets the default font on all graphical frames created after restarting Emacs.
-  ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-  ;; are not right unless I also add this method of setting the default font.
-  ;;(add-to-list 'default-frame-alist '(font . "Input Mono-11"))
+(use-package fontaine)
+ (elpaca-wait)
+   (setq fontaine-latest-state-file
+       (locate-user-emacs-file "fontaine-latest-state.eld"))
+   (setq fontaine-presets
+       '((tiny
+          :default-family "Liberation Mono"
+          :default-height 130)
+         (small
+          :default-family "Liberation Mono"
+          :default-height 150)
+         (regular
+          :default-height 160)
+         (medium
+          :default-height 170)
+         (large
+          ;:default-weight semilight
+          :default-height 190
+          :bold-weight extrabold)
+         (presentation
+          ;:default-weight semilight
+          :default-height 190
+          :bold-weight extrabold)
+         (jumbo
+          ;:default-weight semilight
+          :default-height 240
+          :bold-weight extrabold)
+         (t
+          ;; I keep all properties for didactic purposes, but most can be
+          ;; omitted.  See the fontaine manual for the technicalities:
+          ;; <https://protesilaos.com/emacs/fontaine>.
+:default-family "Liberation Mono"
+          :default-weight regular
+          :default-height 160
+          :fixed-pitch-family nil ; falls back to :default-family
+          :fixed-pitch-weight nil ; falls back to :default-weight
+          :fixed-pitch-height 1.0
+          :fixed-pitch-serif-family nil ; falls back to :default-family
+          :fixed-pitch-serif-weight nil ; falls back to :default-weight
+          :fixed-pitch-serif-height 1.0
+          :variable-pitch-family "Liberation Monos"
+          :variable-pitch-weight nil
+          :variable-pitch-height 1.0
+          :bold-family nil ; use whatever the underlying face has
+          :bold-weight bold
+          :italic-family nil
+          :italic-slant italic
+          :line-spacing nil)))
 
-  ;; Uncomment the following line if line spacing needs adjusting.
-;  (setq-default line-spacing 0.12)
+ ;; Recover last preset or fall back to desired style from
+ ;; `fontaine-presets'.
+ (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
 
-    ;; Enable line numbers
-    (global-display-line-numbers-mode t)
+ ;; The other side of `fontaine-restore-latest-preset'.
+ (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
 
-  (use-package nerd-icons)
+ ;; fontaine does not define any key bindings.  This is just a sample that
+ ;; respects the key binding conventions.  Evaluate:
+ ;;
+
+;; Enable line numbers
+(global-display-line-numbers-mode t)
+
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+
+(use-package nerd-icons)
 
 (use-package dashboard
             :config
@@ -83,14 +121,14 @@
         (setq dashboard-banner-logo-title "Welcome to Forgers Board")
         ;; Set the banner
   ;;    (setq dashboard-startup-banner 'logo)
-        (setq dashboard-startup-banner "/home/Dr.Eccentric/Pictures/DP/CosmoDoc-modified.png")
-        ;; Value can be
+        (setq dashboard-startup-banner "~/Pictures/DP/CosmoDoc-modified.png")
+        ;; Value can b
         ;; - nil to display no banner
         ;; - 'official which displays the official emacs logo
         ;; - 'logo which displays an alternative emacs logo
         ;; - 1, 2 or 3 which displays one of the text banners
         ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
-        ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+        ;; - cons of '("path/to/your/image.png" . "path/to/your/text.txt")
 
         ;; Content is not centered by default. To center, set
         (setq dashboard-center-content t)
@@ -110,73 +148,75 @@
 :init (doom-modeline-mode 1)
  :custom ((doom-modeline-height 30)))
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package which-key
-    :init (which-key-mode)
-    :diminish which-key-mode
-    :config
-    (setq which-key-idle-delay 1))
-
 (use-package bufler
   :elpaca (bufler :fetcher github :repo "alphapapa/bufler.el"
                   :files (:defaults (:exclude "helm-bufler.el"))))
 
-(use-package smartparens-config
-      :elpaca (smartpares-config :host github :repo "Fuco1/smartparens")
+(use-package smartparens
+      :elpaca (smartparens :host github :repo "Fuco1/smartparens")
       :config
      (smartparens-global-mode t) )
      ;; Customize smartparens behavior for ~
 ;(sp-pair "~" "~" :trigger "~"))
 
-(use-package all-the-icons
-  :ensure t
-  :if (display-graphic-p))
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package evil
-  :ensure t
-  :init
-    (setq evil-want-integration t)
-    (setq evil-want-keybinding nil)
-    (evil-mode 1))
+(use-package meow
+     :demand
+     :config
+(require 'meow-qwerty)
+(meow-setup)
+(meow-global-mode 1)
+(setq meow-expand-exclude-mode-list (remove 'org meow-expand-exclude-mode-list))
+(setq meow-use-clipboard t)
+)
 
-(use-package evil-org
-  :ensure t
-  :after org
-  :hook (org-mode . (lambda () evil-org-mode))
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+(global-set-key (kbd "C-c c e") 'open-my-config)
+    (defun open-my-config ()
+      "Open README.org ."
+      (interactive)
+      (find-file "~/.config/emacs/README.org"))
+(global-set-key (kbd "C-x b") 'bufler-switch-buffer)
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
 
-(use-package evil-collection
-  :after (evil)
-  :config
-  (evil-collection-init))
+(global-set-key (kbd "C-c b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
+(global-set-key (kbd "C-c o c i") 'org-clock-in)
+(global-set-key (kbd "C-c o c o") 'org-clock-out)
+(global-set-key (kbd "C-c o n") 'my-create-org-file)
 
-(use-package evil-tutor)
-
-(use-package restart-emacs
-        :demand t
-            :elpaca (restart-emacs :host github :repo "iqbalansari/restart-emacs")
-        :config
-        (setq restart-emacs-restore-frame t)
-        :bind
-("C-c r r" . restart-emacs))
-
-(defun my-reload-emacs ()
-    "Reload Emacs by re-evaluating the init file."
-    (interactive)
-    (load-file user-init-file))
-
-(global-set-key (kbd "C-c s") 'my-reload-emacs)
-
-(global-set-key (kbd "C-c f e") 'open-my-config)
-
-(defun open-my-config ()
-  "Open README.org ."
+;; Function to create a new org file
+(defun my-create-org-file ()
+  "Create a new org file with a prompt for the file name."
   (interactive)
-  (find-file "~/.config/emacs/README.org"))
+  (let ((org-file-name (read-file-name "Enter org file name: ")))
+    (find-file (concat org-file-name ".org"))
+    (insert "#+TITLE: " (file-name-base org-file-name) "\n\n")
+    (org-mode)))
+
+;; You can add more custom keybindings or configurations below if needed.
+
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c o a") 'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
+
+(setq org-capture-templates
+      '(("a" "Appointment" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/appointment.org" "Tasks")
+         "* PLAN %?\nSCHEDULED: %^T\n")
+        ("b" "Birthday" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/birthdays.org" "Birthdays")
+         "* PLAN %?\nSCHEDULED: %^T\n")
+        ("g" "GTD Task" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/GTD.org" "Tasks")
+         "* PLAN %?\nSCHEDULED: %^T\n")
+        ("p" "Project" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "Projects")
+         "* PLAN %?\nSCHEDULED: %^T\n")
+        ;; Add more templates as needed
+        ))
+
+(global-set-key (kbd "C-c r n") 'org-roam-capture)
+(global-set-key (kbd "C-c r f") 'org-roam-node-find)
+(global-set-key (kbd "C-c r m") 'completion-at-point)
+(global-set-key (kbd "C-c r a t") 'org-roam-tag-add)
+(global-set-key (kbd "C-c r a r") 'org-roam-ref-add)
 
 (use-package all-the-icons-dired
   :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
@@ -194,38 +234,45 @@
        (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 (add-hook 'find-file-hook (lambda () (display-line-numbers-mode 0))))
 
-(use-package general
-   :config
-   (general-evil-setup)
-    (general-create-definer leader-key
-        :states '(normal insert visual emacs)
-        :keymaps 'override
-        :prefix "SPC" ;; set leader
-        :global-prefix "C-SPC");; access leader in insert mode
-(require 'hashmap)
- )
-
-
-
 (use-package vertico
 :custom
 (vertico-cycle t)
   :config
 (vertico-mode 1))
 
-(use-package ivy
-  :ensure t)
- ; :config
- ; (ivy-mode 1))
+(use-package corfu
+    :demand t
+    ;; Optional customizations
+    :custom
+    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto-completion
+    ;; (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+    (corfu-auto-delay 0.0)          ;; Enable auto-completion
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
 
-(use-package ivy-rich
-  :ensure t
-  :config
-  (ivy-rich-mode 1))
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode)
+    :bind
+    (:map corfu-map
+          ("TAB" . corfu-next)
+          ([backtab] . corfu-previous)))
 
-(use-package all-the-icons-ivy-rich
-  :config
-  (all-the-icons-ivy-rich-mode 1))
+  
+(use-package nerd-icons-corfu
+  :after corfu
+  :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package marginalia
 :custom
@@ -241,73 +288,23 @@
       completion-category-defaults nil
       completion-category-overrides nil))
 
-(use-package counsel
-  :bind (
-        ;("M-x" . counsel-M-x)
-         ("C-x b" . counsel-switch-buffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("M-r" . 'counsel-minibuffer-history)))
+(use-package consult
+:ensure t)
 
 (setq savehist-mode t)
 
-(use-package company
-  :config
-  (global-company-mode))
-
-(use-package fuzzy)
-
-(use-package ivy-bibtex
-    :ensure t
-    :config
-    (setq bibtex-completion-bibliography '("~/Documents/Articles/bibliotext/references.bib")) ; Add the path to your .bib file
-    (setq bibtex-completion-library-path '("~/Documents/Articles/Medicine") ) ; Add the path to your PDFs or attach files
-    (setq bibtex-completion-notes-path "~/Documents/wORG/Org-ROAM/Alexandria/") ; Add the path to your notes directory
-
-    ;; Use Ivy for BibTeX selection
-    (setq bibtex-completion-cite-prompt-for-optional-arguments nil)
-    (ivy-bibtex-ivify-action ivy-bibtex-open-external ivy-bibtex)
-    (setq bibtex-completion-additional-search-fields '(keywords))
-    (setq bibtex-completion-notes-template-multiple-files
-          (concat
-          "#+TITLE: ${title}\n"
-          "#+ROAM_KEY: cite:${=key=}\n"))
-    )
-
-  ;; Set a keybinding for Ivy BibTeX
-;  (global-set-key (kbd "C-c C-b") 'ivy-bibtex)
-
-(use-package citar
-  :custom
-  (org-cite-global-bibliography '("/home/Dr.Eccentric/Documents/Articles/bibliotext/references.bib"))
-  (org-cite-insert-processor 'citar)
-  (org-cite-follow-processor 'citar)
-  (org-cite-activate-processor 'citar)
-  (citar-bibliography org-cite-global-bibliography)
-  ;; optional: org-cite-insert is also bound to C-c C-x C-@
-  :bind
-  (:map org-mode-map :package org ("C-c b" . #'org-cite-insert)))
-  
-    (use-package citar-org-roam
-    :after (citar org-roam)
-    :config (citar-org-roam-mode))
-
-(use-package org-ref
-  :ensure t
-  :config
-  ;; Customize your Org-Ref settings here
-  )
-
-(use-package org-roam-bibtex
-  :ensure t
-  :config
-  ;; Customize your Org-Roam-Bibtex settings here
-  )
+(use-package langtool
+  :elpaca (langtool :host github :repo "mhayashi1120/Emacs-langtool")
+  :init
+  (setq langtool-language-tool-jar "~/.config/emacs/LanguageTool/languagetool-commandline.jar")
+  (setq langtool-default-language "en-GB"))
 
 (use-package ob-mermaid
   :ensure t
   :config
   (org-babel-do-load-languages 'org-babel-load-languages '((mermaid . t))))
+
+(use-package org-journal)
 
 (setq org-startup-indented t
           org-pretty-entities t
@@ -356,12 +353,6 @@
   (setq org-sticky-header-face-list
         '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
 
-(use-package org-special-block-extras
-    :elpaca (org-special-block-extras :fetcher github :repo
-  "alhassy/org-special-block-extras"))
-  ;; ⟨1⟩ Have this always active in Org buffers
-(add-hook #'org-mode-hook #'org-special-block-extras-mode)
-
 (use-package org-roam
           :elpaca (org-roam :host github :repo "org-roam/org-roam"
                      :files (:defaults "extensions/*") )
@@ -374,85 +365,53 @@
       (setq org-fold-catch-invisible-edits t)
 )
 
-(use-package emacsql-sqlite :ensure t)
-(setq org-roam-database-connector 'sqlite-builtin)
-
-(use-package org-roam-ui
-:after (org-roam)
-    :elpaca
-    (roam-ui :host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-            org-roam-ui-follow t
-            org-roam-ui-update-on-save t
-            org-roam-ui-open-on-start t))
-
 (setq org-roam-db-node-include-function
       (lambda ()
         (not (member "ATTACH" (org-get-tags)))))
-
-(use-package org-transclusion
-:elpaca (org-transclusion :host github :repo "nobiot/org-transclusion")
-  :after org
-      )
-
-(use-package org-glossary
-  :elpaca (:host github :repo "tecosaur/org-glossary"))
 
 (setq org-directory "~/Documents/wORG/Colloquy")
 (setq org-journal-dir "~/Documents/wORG/MyPersonal/My-Microsome")
 (setq org-roam-directory "~/Documents/wORG/Org-ROAM/Alexandria")
 
 (use-package org-remark
-  ;; Alternative way to enable `org-remark-global-tracking-mode' in
-  ;; `after-init-hook'.
-  ;; :hook (after-init . org-remark-global-tracking-mode)
-  :init
-  ;; It is recommended that `org-remark-global-tracking-mode' be
-  ;; enabled when Emacs initializes. Alternatively, you can put it to
-  ;; `after-init-hook' as in the comment above
-  (org-remark-global-tracking-mode +1))
+    :elpaca (org-remark :host github :repo "nobiot/org-remark")
+    ;; Alternative way to enable `org-remark-global-tracking-mode' in
+    ;; `after-init-hook'.
+    ;; :hook (after-init . org-remark-global-tracking-mode)
+    :init
+    ;; It is recommended that `org-remark-global-tracking-mode' be
+    ;; enabled when Emacs initializes. Alternatively, you can put it to
+    ;; `after-init-hook' as in the comment above
+    (org-remark-global-tracking-mode 1))
+(elpaca-wait)
+     (require 'org-remark-info)
+       (org-remark-info-mode 1)
 
-  ;; (use-package org-remark-info
-  ;;   :after info
-  ;;   :config
-  ;;    (org-remark-info-mode +1))
-
-  ;; (use-package org-remark-eww
-  ;;    :after eww
-  ;;    :config
-  ;;     (org-remark-eww-mode +1))
-
-  ;; (use-package org-remark-nov
-  ;;    :after nov
-  ;;    :config
-  ;;     (org-remark-nov-mode +1))
+     (require 'org-remark-eww)
+       (org-remark-eww-mode 1)
+; Optional if you would like to highlight EPUB books via nov.el
+(with-eval-after-load 'nov
+  (org-remark-nov-mode +1))
+   ;  (require 'org-remark-nov)
+    ;   (org-remark-nov-mode 1)
 
 (use-package org-roam-timestamps
-         :after org-roam
-         :config (org-roam-timestamps-mode))
+  :after org-roam
+  :config (org-roam-timestamps-mode))
 (setq org-roam-timestamps-timestamp-parent-file t)
-  (setq org-roam-timestamps-remember-timestamps t)
-  (setq org-roam-timestamps-minimum-gap 3600)
+(setq org-roam-timestamps-remember-timestamps t)
+(setq org-roam-timestamps-minimum-gap 3600)
 
 (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("mer" . "src mermaid"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 (define-abbrev global-abbrev-table "m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
 (setq-default abbrev-mode t)
 
 (use-package org-side-tree)
-
-(use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
 
 (use-package olivetti
         :ensure t
@@ -464,17 +423,37 @@
 
 (use-package org-noter)
 
-(setq org-roam-capture-templates
-      `(("d" "Default" plain "%?"
-         :target (file+head "${slug}.org" "#+title:${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t")
-         :unnarrowed t)
-        ("r" "Roam Note" plain "%?"
-         :target (file+head "${slug}.org" "#+title: ${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t\n\n* Thing that I have understood\n\n* Thing that I have 50-50% Confidence\n\n* Thing that I blew past my head and need to review\n\n* Research Article\n\n* Devil's Advocate Corner\n\n")
-         :unnarrowed t)))
+(use-package nov
+  :mode ("\\.epub\\'" . nov-mode))
+  (use-package pdf-tools)
+(use-package djvu)
 
-(use-package org-journal
-  :config
-  (setq org-journal-dir "~/Documents/wORG/My-Personal/My-Microsome"))
+(use-package consult-org-roam
+   :ensure t
+   :after org-roam
+   :init
+   (require 'consult-org-roam)
+   ;; Activate the minor mode
+   (consult-org-roam-mode 1)
+   :custom
+   ;; Use `ripgrep' for searching with `consult-org-roam-search'
+   (consult-org-roam-grep-func #'consult-ripgrep)
+   ;; Configure a custom narrow key for `consult-buffer'
+   (consult-org-roam-buffer-narrow-key ?r)
+   ;; Display org-roam buffers right after non-org-roam buffers
+   ;; in consult-buffer (and not down at the bottom)
+   (consult-org-roam-buffer-after-buffers t)
+   :config
+   ;; Eventually suppress previewing for certain functions
+   (consult-customize
+    consult-org-roam-forward-links
+    :preview-key "M-.")
+   :bind
+   ;; Define some convenient keybindings as an addition
+   ("C-c r c f" . consult-org-roam-file-find)
+   ("C-c r c b" . consult-org-roam-backlinks)
+   ("C-c r c l" . consult-org-roam-forward-links)
+   ("C-c r c s" . consult-org-roam-search))
 
 (setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
   (setq org-log-done t)
@@ -482,48 +461,56 @@
 
 (setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "SCHEDULE(s)" "|" "TODO(t)" "In-Progress(r)" "DONE(d)" "|" "CANCELLED(c)" "DEFERRED(f)")))
 
-;; TODO: org-todo-keyword-faces
-(setq org-todo-keyword-faces
-      '(("IDEA" . (:foreground "DeepSkyBlue2" :weight bold))
-        ("PLAN" . (:foreground "orange red" :weight bold))
-        ("TODO" . (:foreground "HotPink2" :weight bold))
-        ("In-Progress" . (:foreground "MediumPurple3" :weight bold))
-        ("DONE" . (:foreground "LimeGreen" :weight bold))
-        ("CANCELLED" . (:foreground "red3" :weight bold))
-        ("DEFERRED" . (:foreground "DarkOrange2" :weight bold))
-        ("SCHEDULE" . (:foreground "orange2" :weight bold))))
+(use-package svg-tag-mode)
+(use-package svg-lib
+  :elpaca (svg-lib :host github :repo "rougier/svg-lib")
+  :demand t
+  )
+
+(setq svg-tag-keywords
+      '(("IDEA(i)" . ((lambda (tag) (svg-tag-make "IDEA"))))
+        ("PLAN(p)" . ((lambda (tag) (svg-tag-make "PLAN"))))
+        ("SCHEDULE(s)" . ((lambda (tag) (svg-tag-make "SCHEDULE"))))
+        ("TODO(t)" . ((lambda (tag) (svg-tag-make "TODO"))))
+        ("In-Progress(r)" . ((lambda (tag) (svg-tag-make "In-Progress"))))
+        ("DONE(d)" . ((lambda (tag) (svg-tag-make "DONE"))))
+        ("CANCELLED(c)" . ((lambda (tag) (svg-tag-make "CANCELLED"))))
+        ("DEFERRED(f)" . ((lambda (tag) (svg-tag-make "DEFERRED"))))))
+
+;(setq svg-tag-tags (append svg-tag-tags svg-tag-keywords))
+
+(defun org-agenda-show-svg ()
+  (let* ((case-fold-search nil)
+         (keywords (mapcar #'svg-tag--build-keywords svg-tag--active-tags))
+         (keyword (car keywords)))
+    (while keyword
+      (save-excursion
+        (while (re-search-forward (nth 0 keyword) nil t)
+          (overlay-put (make-overlay
+                        (match-beginning 0) (match-end 0))
+                       'display  (nth 3 (eval (nth 2 keyword)))) ))
+      (pop keywords)
+      (setq keyword (car keywords)))))
+(add-hook 'org-agenda-finalize-hook #'org-agenda-show-svg)
 
 (setq org-highest-priority ?A       ; Highest priority is 'A'
       org-lowest-priority ?D        ; Lowest priority is 'D'
       org-default-priority ?C)      ; Default priority is 'C'
 
-(setq org-priority-faces
-      '((?A . (:foreground "red" :weight bold :height 1.2))    ; Highest priority: ❗
-        (?B . (:foreground "orange" :weight bold :height 1.2)) ; Priority 'B': ⬆
-        (?C . (:foreground "yellow" :weight bold :height 1.2)) ; Priority 'C': ⬇
-        (?D . (:foreground "green" :weight bold :height 1.2))  ; Lowest priority: ☕
-        (?1 . (:foreground "purple" :weight bold :height 1.2)) ; Priority '1': ⚡
-        (?2 . (:foreground "blue" :weight bold :height 1.2))   ; Priority '2': ⮬
-        (?3 . (:foreground "cyan" :weight bold :height 1.2))   ; Priority '3': ⮮
-        (?4 . (:foreground "green" :weight bold :height 1.2))  ; Priority '4': ☕
-        (?I . (:foreground "Pink" :weight bold :height 1.2))))  ; Priority 'I' (Important): ❗
-
 (use-package org-recur)
 
-(use-package org-super-agenda
-:ensure t
-:init
-(setq org-super-agenda-mode 1))
+(setq org-journal-date-prefix "#+TITLE:"
+       org-journal-time-prefix "*  "
+       org-journal-date-format "%A, %F"
+       org-journal-file-format "%F.org")
 
-(use-package org-hyperscheduler
-    :elpaca (org-hyperscheduler :fetcher github :repo "dmitrym0/org-hyperscheduler"))
-  ;(org-hyper-schedule-mode))
-(setq org-hyperscheduler-exclude-from-org-roam t)
-
-(use-package calfw)
-  (use-package calfw-org
-  :config
-(setq cfw:org-overwrite-default-keybinding t))
+(setq org-roam-capture-templates
+      `(("d" "Default" plain "%?"
+         :target (file+head "${slug}.org" "#+title:${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t")
+         :unnarrowed t)
+        ("r" "Roam Note" plain "%?"
+         :target (file+head "${slug}.org" "#+title: ${title}\n#+filetags: ${tag}\n#+OPTIONS: toc:nil timestamp:t\n\n* Thing that I have understood\n\n* Thing that I have 50-50% Confidence\n\n* Thing that I blew past my head and need to review\n\n* Research Article\n\n* Devil's Advocate Corner\n\n")
+         :unnarrowed t)))
 
 (use-package elfeed
          :ensure t)
@@ -533,22 +520,6 @@
    :config
    (elfeed-score-enable))
 ; (require 'zotearo)
-
-(use-package calibredb
-       :config
-       (setq calibredb-root-dir "~/NEXTCLOUD@DISROOT/Clibre")
-       (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
-       (setq calibredb-library-alist '(("~/NEXTCLOUD@DISROOT/Clibre")
-                                       ("~/Documents/Articles/Medicine")
-                                       ("~/Documents/Articles/Personal")
-       ))
-   (setq calibredb-virtual-library-alist '(("1. Development - work" . "work \\(pdf\\|epub\\)")
-                                           ("2. Read it later" . "Readit epub")
-                                           ("3. Development - rust" . "rust")))
- (setq calibredb-format-character-icons t)
-)
-(use-package nov)
-(use-package org-calibre-notes)
 
 (use-package eat
 :elpaca (eat 

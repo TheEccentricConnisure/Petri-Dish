@@ -7,7 +7,7 @@
  '(elfeed-feeds
    '("https://morss.it/:items=||*[class=article--meta]/https://jamanetwork.com/journals/jama" "https://morss.it/:items=||*[class=section-container]||ul|li/https://www.medscape.com/" "https://morss.it/:items=||*[class=c-listing__content]/https://eurjmedres.biomedcentral.com/articles"))
  '(org-agenda-files
-   '("~/Documents/wORG/My-Personal/Transmogrify/Hammurabi's-Code.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "/home/Dr.Eccentric/.config/emacs/README.org"))
+   '("~/Documents/wORG/My-Personal/Transmogrify/appointment.org" "/home/Dr.Eccentric/Documents/wORG/Org-ROAM/Alexandria/cms_upsc.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "/home/Dr.Eccentric/.config/emacs/README.org"))
  '(package-selected-packages '(org org-present meow))
  '(warning-suppress-log-types '((comp))))
 
