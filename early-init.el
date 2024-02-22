@@ -26,3 +26,9 @@
     (global-display-line-numbers-mode t)
 
 (setq byte-compile-warnings '(cl-functions))
+    (defun my/load-after-elpa ()
+      (require 'compat)
+      ;; Your configuration for the 'compat' package here
+      )
+    (add-hook 'after-init-hook
+              'my/load-after-elpa)

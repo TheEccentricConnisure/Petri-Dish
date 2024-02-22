@@ -69,12 +69,17 @@
 
 * Elpaca
 #+begin_src emacs-lisp
-;; -*- lexical-binding: t; -*-
+    ;; -*- lexical-binding: t; -*-
 
-; The loading of the Vibraniums
-        (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
-        ;; The Elpaca Package Manager
-        (require 'elpaca-setup)
+    ; The loading of the Vibraniums
+            (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
+            ;; The Elpaca Package Manager
+            (require 'elpaca-setup)
+  (elpaca-wait)
+  (use-package compat
+    :ensure t
+    :after elpaca)
+  (elpaca-wait)
 #+end_src
 * Init File wrapper
 #+begin_src emacs-lisp
@@ -92,7 +97,6 @@ This snippet adds a hook to =org-mode= buffers so that =dr/org-babel-tangle-conf
         ;; Dynamic scoping to the rescue
         (let ((org-confirm-babel-evaluate nil))
           (org-babel-tangle)
-          	(load-file "~/.config/emacs/init.el")
           )))
 
    (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'dr/org-babel-tangle-config nil 'make-it-local)))
@@ -122,8 +126,7 @@ To execute or export code in =org-mode= code blocks, you'll need to set up =org-
 (setq backup-directory-alist '((".*" . "~/.config/emacs/.trash")))
 #+end_src
 
-* TODO PERSONAL DETAILS
-CLOSED: [2024-02-13 Tue 10:33]
+* SCHEDULE PERSONAL DETAILS
 #+begin_src emacs-lisp :tangle no
 (setq user-full-name "Ivan Pereira"
       user-mail-address "ivan.pereira@mailfence.com")
@@ -151,11 +154,12 @@ This section configures basic UI settings that remove unneeded elements to make 
 
 ** Fonts
 #+begin_src emacs-lisp
-    (use-package fontaine)
+  (use-package fontaine
+    :ensure t)
   (elpaca-wait)
-    (setq fontaine-latest-state-file
+  (setq fontaine-latest-state-file
         (locate-user-emacs-file "fontaine-latest-state.eld"))
-    (setq fontaine-presets
+  (setq fontaine-presets
         '((tiny
            :default-family "Liberation Mono"
            :default-height 130)
@@ -167,22 +171,22 @@ This section configures basic UI settings that remove unneeded elements to make 
           (medium
            :default-height 170)
           (large
-           ;:default-weight semilight
+                                          ;:default-weight semilight
            :default-height 190
            :bold-weight extrabold)
           (presentation
-           ;:default-weight semilight
+                                          ;:default-weight semilight
            :default-height 190
            :bold-weight extrabold)
           (jumbo
-           ;:default-weight semilight
+                                          ;:default-weight semilight
            :default-height 240
            :bold-weight extrabold)
           (t
            ;; I keep all properties for didactic purposes, but most can be
            ;; omitted.  See the fontaine manual for the technicalities:
            ;; <https://protesilaos.com/emacs/fontaine>.
- :default-family "Liberation Mono"
+           :default-family "Liberation Mono"
            :default-weight regular
            :default-height 160
            :fixed-pitch-family nil ; falls back to :default-family
@@ -220,7 +224,6 @@ This section configures basic UI settings that remove unneeded elements to make 
 ** ALL THE ICONS
 #+begin_src emacs-lisp
 (use-package all-the-icons
-  :ensure t
   :if (display-graphic-p))
 #+end_src
 
@@ -231,64 +234,71 @@ This section configures basic UI settings that remove unneeded elements to make 
 
 ** Dashboard
 #+begin_src emacs-lisp
-           (use-package dashboard
-            :config
-            (dashboard-setup-startup-hook)
-          (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
-        ;; Set the title
-        (setq dashboard-banner-logo-title "Welcome to Forgers Board")
-        ;; Set the banner
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
+  ;; Set the title
+  (setq dashboard-banner-logo-title "Welcome to Forgers Board")
+  ;; Set the banner
   ;;    (setq dashboard-startup-banner 'logo)
-        (setq dashboard-startup-banner "~/Pictures/DP/CosmoDoc-modified.png")
-        ;; Value can b
-        ;; - nil to display no banner
-        ;; - 'official which displays the official emacs logo
-        ;; - 'logo which displays an alternative emacs logo
-        ;; - 1, 2 or 3 which displays one of the text banners
-        ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
-        ;; - cons of '("path/to/your/image.png" . "path/to/your/text.txt")
-
-        ;; Content is not centered by default. To center, set
-        (setq dashboard-center-content t)
-(add-hook 'dashboard-setup-startup-hook (lambda () (display-line-numbers-mode 0)))
-        ;; To disable shortcut "jump" indicators for each section, set
-        (setq dashboard-show-shortcuts t)
-    (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
-    (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
+  (setq dashboard-startup-banner "~/Pictures/DP/CosmoDoc-modified.png")
+    ;; Show shortcut indicators
+  (setq dashboard-show-shortcuts t)
+  ;; Value can b
+  ;; - nil to display no banner
+  ;; - 'official which displays the official emacs logo
+  ;; - 'logo which displays an alternative emacs logo
+  ;; - 1, 2 or 3 which displays one of the text banners
+  ;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
+  ;; - cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+  (setq dashboard-items '((recents . 5)  ;; Display 5 recent files
+                          (agenda . 5)        ;; Display 5 agenda items
+                          (bookmarks . 5) ;; Display 5 bookmarked files
+                          ;; Add other sections as needed
+                          ))
+  ;; Content is not centered by default. To center, set
+  (setq dashboard-center-content t)
+  (add-hook 'dashboard-setup-startup-hook (lambda () (display-line-numbers-mode 0)))
+  ;; To disable shortcut "jump" indicators for each section, set
+  (setq dashboard-show-shortcuts t)
+  (setq dashboard-display-icons-p t) ;; display icons on both GUI and terminal
+  (setq dashboard-icon-type 'nerd-icons) ;; use `nerd-icons' package
 #+end_src
  
-** TODO Theme
-CLOSED: [2024-02-13 Tue 10:34]
+** SCHEDULE Theme
 + I need to find out why this not considered to be not safe
   - What is the reason
 #+begin_src emacs-lisp
 	(use-package ef-themes
-          :demand t
           :config
            (load-theme 'ef-elea-dark :no-confirm))
 #+end_src
 
 ** MODE-LINE
 #+begin_src emacs-lisp
-  (use-package doom-modeline
-    :demand t
- :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 30)))
+   (use-package doom-modeline
+  :init (doom-modeline-mode 1)
+   :custom ((doom-modeline-height 30)))
 #+end_src
 
+*** Diminish
+#+begin_src emacs-lisp
+(use-package diminish)
+#+end_src
 * CORE Extra Packages
 
 ** BUTLER FOR THE BUFFER
 #+begin_src emacs-lisp 
   (use-package bufler
-    :elpaca (bufler :fetcher github :repo "alphapapa/bufler.el"
+    :ensure (bufler :fetcher github :repo "alphapapa/bufler.el"
                     :files (:defaults (:exclude "helm-bufler.el"))))
 #+end_src
 
 ** SMART PARENS
 #+begin_src emacs-lisp
       (use-package smartparens
-      :elpaca (smartparens :host github :repo "Fuco1/smartparens")
+      :ensure (smartparens :host github :repo "Fuco1/smartparens")
       :config
      (smartparens-global-mode t) )
      ;; Customize smartparens behavior for ~
@@ -305,7 +315,6 @@ CLOSED: [2024-02-13 Tue 10:34]
 ** Meow
 #+begin_src emacs-lisp
       (use-package meow
-         :demand
          :config
     (require 'meow-qwerty)
     (meow-setup)
@@ -314,74 +323,13 @@ CLOSED: [2024-02-13 Tue 10:34]
     (setq meow-use-clipboard t)
     )
 #+end_src
-** SCAMX
+** PLAN SCAMX
 #+begin_src emacs-lisp :tangle no
   (use-package scamx
-    :elpaca (:host github :repo "MagiFeeney/scamx")
+    :ensure (:host github :repo "MagiFeeney/scamx")
     :config
     (electric-pair-mode))
     #+end_src
-* Keybindiwngs
-** Basics
-#+begin_src emacs-lisp
-      (global-set-key (kbd "C-c c e") 'open-my-config)
-      (defun open-my-config ()
-        "Open README.org ."
-        (interactive)
-        (find-file "~/.config/emacs/README.org"))
-  (global-set-key (kbd "C-x b") 'bufler-switch-buffer)
-  (global-set-key (kbd "C-x k") 'kill-this-buffer)
-#+end_src
-
-** Org Key-binding
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-c b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
-  (global-set-key (kbd "C-c o c i") 'org-clock-in)
-  (global-set-key (kbd "C-c o c o") 'org-clock-out)
-  (global-set-key (kbd "C-c o n") 'my-create-org-file)
-
-  ;; Function to create a new org file
-  (defun my-create-org-file ()
-    "Create a new org file with a prompt for the file name."
-    (interactive)
-    (let ((org-file-name (read-file-name "Enter org file name: ")))
-      (find-file (concat org-file-name ".org"))
-      (insert "#+TITLE: " (file-name-base org-file-name) "\n\n")
-      (org-mode)))
-
-  ;; You can add more custom keybindings or configurations below if needed.
-#+end_src
-
-** Agenda Key-binding
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c o a") 'org-capture)
-  (global-set-key (kbd "C-c l") 'org-store-link)
-  #+end_src
-  the following is used to assign the files to which the agenda is to be captured 
-  #+begin_src emacs-lisp
-    (setq org-capture-templates
-          '(("a" "Appointment" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/appointment.org" "Tasks")
-             "* PLAN %?\nSCHEDULED: %^T\n")
-            ("b" "Birthday" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/birthdays.org" "Birthdays")
-             "* PLAN %?\nSCHEDULED: %^T\n")
-            ("g" "GTD Task" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/GTD.org" "Tasks")
-             "* PLAN %?\nSCHEDULED: %^T\n")
-            ("p" "Project" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "Projects")
-             "* PLAN %?\nSCHEDULED: %^T\n")
-            ;; Add more templates as needed
-            ))
-#+end_src
-
-** ROAM key-binding
-#+begin_src emacs-lisp 
-(global-set-key (kbd "C-c r n") 'org-roam-capture)
-(global-set-key (kbd "C-c r f") 'org-roam-node-find)
-(global-set-key (kbd "C-c r m") 'completion-at-point)
-(global-set-key (kbd "C-c r a t") 'org-roam-tag-add)
-(global-set-key (kbd "C-c r a r") 'org-roam-ref-add)
-#+end_src
-
 * dired accesories
 ** all the icons
 #+begin_src emacs-lisp  
@@ -399,10 +347,9 @@ this helps to open specific files
                                           ("mkv" . "mpv"))))
 #+end_src
 
-* NEO-TREE
+* IDEA NEO-TREE
 #+begin_src emacs-lisp
          (use-package neotree
-           :ensure t
           :config
            (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
     (add-hook 'find-file-hook (lambda () (display-line-numbers-mode 0))))
@@ -421,7 +368,9 @@ this helps to open specific files
 ** Corfu
 #+begin_src emacs-lisp
   (use-package corfu
-    :demand t
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode)
     ;; Optional customizations
     :custom
     (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
@@ -430,7 +379,7 @@ this helps to open specific files
     ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
     ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
     ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    (corfu-preselect 'prompt)      ;; Preselect the prompt
     ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
     ;; (corfu-scroll-margin 5)        ;; Use scroll margin
     (corfu-auto-delay 0.0)          ;; Enable auto-completion
@@ -441,9 +390,6 @@ this helps to open specific files
 
     ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
     ;; be used globally (M-/).  See also the customization variable
-    ;; `global-corfu-modes' to exclude certain modes.
-    :init
-    (global-corfu-mode)
     :bind
     (:map corfu-map
           ("TAB" . corfu-next)
@@ -456,11 +402,11 @@ this helps to open specific files
 #+end_src
 ** MARGINAILA
 #+begin_src emacs-lisp
-	(use-package marginalia
-  :custom
-  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
-  :init
-  (marginalia-mode))
+  (use-package marginalia
+    :init
+    (marginalia-mode)
+    :custom
+    (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 #+end_src
 
 ** ORDERLESS
@@ -471,15 +417,26 @@ this helps to open specific files
   ;; This affects the minibuffer and non-lsp completion at point.
   (setq completion-styles '(orderless partial-completion basic)
         completion-category-defaults nil
-        completion-category-overrides nil))
+        completion-category-overrides nil)
+  )
 #+end_src
 
 ** CONSULT
 #+begin_src emacs-lisp 
-  (use-package consult
-  :ensure t)
+  (use-package consult)
 #+end_src
 
+** Embark
+#+begin_src emacs-lisp
+  (use-package embark
+    :config
+    (setq embark-action-indicator
+        (lambda (map)
+          (which-key--show-keymap "Embark" map nil nil 'no-paging)
+          #'which-key--hide-popup-ignore-command)
+        embark-become-indicator embark-action-indicator))
+  (use-package embark-consult)
+#+end_src
 * History
 #+begin_src emacs-lisp
   (setq savehist-mode t)
@@ -488,7 +445,7 @@ this helps to open specific files
 * TODO LanguageTool
 #+begin_src emacs-lisp
         (use-package langtool
-          :elpaca (langtool :host github :repo "mhayashi1120/Emacs-langtool")
+          :ensure (langtool :host github :repo "mhayashi1120/Emacs-langtool")
           :init
           (setq langtool-language-tool-jar "~/.config/emacs/LanguageTool/languagetool-commandline.jar")
           (setq langtool-default-language "en-GB"))
@@ -497,18 +454,12 @@ this helps to open specific files
 * MERMAID Setup
 #+begin_src emacs-lisp
 (use-package ob-mermaid
-  :ensure t
   :config
   (org-babel-do-load-languages 'org-babel-load-languages '((mermaid . t))))
 #+end_src
 
 
 * wORG Microsome
-** ORG-JOURNAL
-#+begin_src emacs-lisp
-  (use-package org-journal)
-#+end_src
-
 ** Org Beautification
 #+begin_src emacs-lisp
   (setq org-startup-indented t
@@ -521,7 +472,7 @@ this helps to open specific files
 *** Org-MODERN
 #+begin_src emacs-lisp
      (use-package org-modern
-      :elpaca(org-modern :host github :repo "minad/org-modern")
+      :ensure(org-modern :host github :repo "minad/org-modern")
       :init
   (with-eval-after-load 'org (global-org-modern-mode))
        )
@@ -554,9 +505,9 @@ this helps to open specific files
 *** Sticky Headers
 #+begin_src emacs-lisp
 (use-package org-sticky-header
-    :elpaca (org-sticky-header :host github :repo "alphapapa/org-sticky-header")
+    :ensure (org-sticky-header :host github :repo "alphapapa/org-sticky-header")
     :after (org)
-  :ensure t
+  :demand t
   :after org
   :hook (org-mode . org-sticky-header-mode)
   :config
@@ -566,11 +517,108 @@ this helps to open specific files
         '((header-line . (:inherit mode-line :background "gray90" :foreground "black" :box nil)))))
 #+end_src
 
+** ORG-JOURNAL
+#+begin_src emacs-lisp
+  (use-package org-journal)
+#+end_src
+
+** Org-AGENDA
+
+*** Org-AGENDA Start Date
+#+begin_src emacs-lisp
+  (setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
+  (setq org-log-done t)
+#+end_src
+
+*** GTD States
+#+begin_src emacs-lisp
+(setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "SCHEDULE(s)" "TODO(t)" "In-Progress(r)" "CANCELLED(c)" "DEFERRED(f)" "DONE(d)")))
+#+end_src
+
+*** Priorites
+#+begin_src emacs-lisp
+(setq org-highest-priority ?A       ; Highest priority is 'A'
+      org-lowest-priority ?D        ; Lowest priority is 'D'
+      org-default-priority ?C)      ; Default priority is 'C'
+#+end_src
+
+*** REcur
+#+begin_src emacs-lisp
+      (use-package org-recur
+        :hook ((org-mode . org-recur-mode)
+               (org-agenda-mode . org-recur-agenda-mode))
+        :demand t
+        :config
+        (setq org-recur-finish-done t
+        org-recur-finish-archive t))
+#+end_src
+
+*** TODO RE: file 
+CLOSED: [2024-02-13 Tue 14:08]
+#+begin_src emacs-lisp
+  ;; Customize the variable org-refile-targets to specify the refile targets.
+  ;; The example below sets it to refile headlines in the current buffer,
+  ;; as well as in the "~/path/to/destination.org" file.
+  (setq org-refile-targets '((nil :maxlevel . 3)
+                             (org-agenda-files :maxlevel . 3)
+                             ("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
+  ;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
+  (setq org-refile-use-outline-path t)
+
+  ;; Optionally, set org-outline-path-complete-in-steps to t for better completion.
+  (setq org-outline-path-complete-in-steps t)
+
+  ;; Optionally, set org-refile-allow-creating-parent-nodes to t to allow creating non-existing parent nodes.
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
+
+*** ORG-SUPERAGENDA
+#+begin_src emacs-lisp
+      (use-package org-super-agenda
+    :demand t
+    :init
+    (setq org-super-agenda-mode 1)
+    (setq org-agenda-custom-commands
+        '(("x" "Eisenhower Matrix"
+           ((agenda ""
+                    ((org-agenda-span 'week)
+                     (org-agenda-start-day "+0d")
+                     (org-super-agenda-groups
+                      '((:name "Urgent & Important" :priority "A")
+                        (:name "Important, Not Urgent" :priority "B")
+                        (:name "Urgent, Not Important" :priority "C")
+                        (:name "Not Urgent & Not Important" :priority "D"))))))))))
+#+end_src
+
+*** ORG-Hyperscheduler
+#+begin_src emacs-lisp
+  (use-package org-hyperscheduler
+    :ensure (org-hyperscheduler :fetcher github :repo "dmitrym0/org-hyperscheduler"))
+  ;(org-hyper-schedule-mode))
+(setq org-hyperscheduler-exclude-from-org-roam t)
+#+end_src
+
+*** Org-Caldav Sync
+#+begin_src emacs-lisp
+      (use-package org-caldav
+        :config
+        (setq org-caldav-url "https://cloud.disroot.org/remote.php/dav/"
+        org-caldav-calendar-id "calendars/xanaus/transmogrify/"
+        org-caldav-inbox "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/caldav.org"
+        org-caldav-files '("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/GTD.org"
+                           "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/appointment.org"
+                           "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/birthday.org"
+                           "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org"))
+        (setq org-caldav-save-directory "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/caldav")
+                (setq org-caldav-delete-org-entries 'always
+        org-caldav-delete-calendar-entries 'never)
+  )
+#+end_src
 ** ORG-ROAM
 *** Installation 
 #+begin_src emacs-lisp 
           (use-package org-roam
-            :elpaca (org-roam :host github :repo "org-roam/org-roam"
+            :ensure (org-roam :host github :repo "org-roam/org-roam"
                        :files (:defaults "extensions/*") )
             :init
           (setq org-roam-v2-ack t)
@@ -589,16 +637,17 @@ this helps to open specific files
 #+end_src
 
 *** TODO Block-ref
-CLOSED: [2023-12-06 Wed 01:14]
+CLOSED: [2024-02-16 Fri 11:51]
 #+begin_src emacs-lisp :tangle no
     (use-package org-roam-dblocks
-    :elpaca (org-roam-dblocks :host github :repo "chrisbarrett/nursery" :files (:exclude "images/*") :main "lisp/org-roam-dblocks.el")
+    :ensure (org-roam-dblocks :host github :repo "chrisbarrett/nursery" :files (:exclude "images/*") :main "lisp/org-roam-dblocks.el")
  :hook (org-mode . org-roam-dblocks-autoupdate-mode))
 #+end_src
 
 ** Directory (Yellow Pages)
 #+begin_src emacs-lisp
   (setq org-directory "~/Documents/wORG/Colloquy")
+  (setq org-agenda-files '("~/Documents/wORG/My-Personal/Transmogrify"))
   (setq org-journal-dir "~/Documents/wORG/MyPersonal/My-Microsome")
   (setq org-roam-directory "~/Documents/wORG/Org-ROAM/Alexandria")
 #+end_src
@@ -607,7 +656,7 @@ CLOSED: [2023-12-06 Wed 01:14]
 ** TODO ORG-REMARK
 #+begin_src emacs-lisp 
   (use-package org-remark
-    :elpaca (org-remark :host github :repo "nobiot/org-remark")
+    :ensure (org-remark :host github :repo "nobiot/org-remark")
     ;; Alternative way to enable `org-remark-global-tracking-mode' in
     ;; `after-init-hook'.
     ;; :hook (after-init . org-remark-global-tracking-mode)
@@ -647,7 +696,7 @@ CLOSED: [2023-12-06 Wed 01:14]
   (add-to-list 'org-structure-template-alist '("mer" . "src mermaid"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
-*** TODO ORG-mediverse
+*** PLAN ORG-mediverse
 #+begin_src emacs-lisp
 (define-abbrev global-abbrev-table "m" "* Thyroid\n** Embryology\n** Anatomy** Physiology Functions\n** Pathology** Clinical Parameters to look out for\n** Pharmacology")
 (setq-default abbrev-mode t)
@@ -657,17 +706,10 @@ CLOSED: [2023-12-06 Wed 01:14]
 #+begin_src emacs-lisp
   (use-package org-side-tree)
 #+end_src
-** ENABLING OF TOC TO ALL ORG DOCUMENTS:
-#+begin_src emacs-lisp :tangle no
-(use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
-#+end_src
-
 ** Olivetti
 #+begin_src emacs-lisp
         (use-package olivetti
-          :ensure t
+          :demand t
           :hook
           (org-mode . olivetti-mode)
           :init
@@ -694,7 +736,7 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 ** consult-org
 #+begin_src emacs-lisp
 (use-package consult-org-roam
-   :ensure t
+   :demand t
    :after org-roam
    :init
    (require 'consult-org-roam)
@@ -722,9 +764,9 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 #+end_src
 
 ** ORG-Presentation
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package org-present
-    :ensure t
+    :demand t
     :config
     (setq org-present-text-scale 3
           org-present-mode-hook
@@ -733,109 +775,6 @@ In the past, textbooks were sometimes published as interleaved editions. That me
             (org-display-inline-images)
             (org-present-hide-cursor)
             (org-present-read-only))))
-#+end_src
-
-** Org-AGENDA
-
-*** Org-AGENDA Start Date
-#+begin_src emacs-lisp
-  (setq org-agenda-start-on-weekday 0) ; 0 for Sunday, 1 for Monday, and so on
-  (setq org-log-done t)
-(setq org-agenda-files '("~/Documents/wORG/My-Personal/Transmogrify"))
-
-#+end_src
-
-*** In-Progress GTD States
-CLOSED: [2024-02-03 Sat 15:03]
-#+begin_src emacs-lisp
-(setq org-todo-keywords '((sequence "IDEA(i)" "PLAN(p)" "SCHEDULE(s)" "|" "TODO(t)" "In-Progress(r)" "DONE(d)" "|" "CANCELLED(c)" "DEFERRED(f)")))
-#+end_src
-
-**** SVG-tags
-#+begin_src emacs-lisp
-        (use-package svg-tag-mode)
-        (use-package svg-lib
-          :elpaca (svg-lib :host github :repo "rougier/svg-lib")
-          :demand t
-          )
-#+end_src
-
-**** GTD Faces
-#+begin_src emacs-lisp
-  (setq svg-tag-keywords
-        '(("IDEA(i)" . ((lambda (tag) (svg-tag-make "IDEA"))))
-          ("PLAN(p)" . ((lambda (tag) (svg-tag-make "PLAN"))))
-          ("SCHEDULE(s)" . ((lambda (tag) (svg-tag-make "SCHEDULE"))))
-          ("TODO(t)" . ((lambda (tag) (svg-tag-make "TODO"))))
-          ("In-Progress(r)" . ((lambda (tag) (svg-tag-make "In-Progress"))))
-          ("DONE(d)" . ((lambda (tag) (svg-tag-make "DONE"))))
-          ("CANCELLED(c)" . ((lambda (tag) (svg-tag-make "CANCELLED"))))
-          ("DEFERRED(f)" . ((lambda (tag) (svg-tag-make "DEFERRED"))))))
-
-  ;(setq svg-tag-tags (append svg-tag-tags svg-tag-keywords))
-
-  (defun org-agenda-show-svg ()
-    (let* ((case-fold-search nil)
-           (keywords (mapcar #'svg-tag--build-keywords svg-tag--active-tags))
-           (keyword (car keywords)))
-      (while keyword
-        (save-excursion
-          (while (re-search-forward (nth 0 keyword) nil t)
-            (overlay-put (make-overlay
-                          (match-beginning 0) (match-end 0))
-                         'display  (nth 3 (eval (nth 2 keyword)))) ))
-        (pop keywords)
-        (setq keyword (car keywords)))))
-  (add-hook 'org-agenda-finalize-hook #'org-agenda-show-svg)
-
-#+end_src
-
-*** Priorites
-#+begin_src emacs-lisp
-(setq org-highest-priority ?A       ; Highest priority is 'A'
-      org-lowest-priority ?D        ; Lowest priority is 'D'
-      org-default-priority ?C)      ; Default priority is 'C'
-#+end_src
-
-*** REcur
-#+begin_src emacs-lisp
-  (use-package org-recur)
-#+end_src
-
-*** TODO RE: file 
-CLOSED: [2024-02-13 Tue 14:08]
-#+begin_src emacs-lisp :tangle no
-;; Customize the variable org-refile-targets to specify the refile targets.
-;; The example below sets it to refile headlines in the current buffer,
-;; as well as in the "~/path/to/destination.org" file.
-(setq org-refile-targets '((nil :maxlevel . 3)
-                           (org-agenda-files :maxlevel . 3)
-                           ("~/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
-
-;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
-(setq org-refile-use-outline-path t)
-
-;; Optionally, set org-outline-path-complete-in-steps to t for better completion.
-(setq org-outline-path-complete-in-steps t)
-
-;; Optionally, set org-refile-allow-creating-parent-nodes to t to allow creating non-existing parent nodes.
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-#+end_src
-
-*** ORG-SUPERAGENDA
-#+begin_src emacs-lisp :tangle no
-    (use-package org-super-agenda
-  :ensure t
-  :init
-  (setq org-super-agenda-mode 1))
-#+end_src
-
-*** ORG-Hyperscheduler
-#+begin_src emacs-lisp :tangle no
-  (use-package org-hyperscheduler
-    :elpaca (org-hyperscheduler :fetcher github :repo "dmitrym0/org-hyperscheduler"))
-  ;(org-hyper-schedule-mode))
-(setq org-hyperscheduler-exclude-from-org-roam t)
 #+end_src
 
 ** TEMPLATES
@@ -864,10 +803,10 @@ CLOSED: [2024-02-13 Tue 14:08]
 * IDEA RSS
 #+begin_src emacs-lisp
   (use-package elfeed
-           :ensure t)
+           :demand t)
 
    (use-package elfeed-score
-     :ensure t
+     :demand t
      :config
      (elfeed-score-enable))
   ; (require 'zotearo)
@@ -876,7 +815,7 @@ CLOSED: [2024-02-13 Tue 14:08]
 * TERMINAL
 #+begin_src emacs-lisp
   (use-package eat
- :elpaca (eat 
+ :ensure (eat 
        :host codeberg
        :repo "akib/emacs-eat"
        :files ("*.el" ("term" "term/*.el") "*.texi"
@@ -886,13 +825,76 @@ CLOSED: [2024-02-13 Tue 14:08]
                (:exclude ".dir-locals.el" "*-tests.el"))))
 #+end_src
 
+* Keybindiwngs
+** Basics
+#+begin_src emacs-lisp
+      (global-set-key (kbd "C-c e") 'open-my-config)
+      (defun open-my-config ()
+        "Open README.org ."
+        (interactive)
+        (find-file "~/.config/emacs/README.org"))
+  (global-set-key (kbd "C-c b") 'bufler-switch-buffer)
+  (global-set-key (kbd "C-c K") 'kill-this-buffer)
+#+end_src
+
+** Org Key-binding
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
+  (global-set-key (kbd "C-c o c i") 'org-clock-in)
+  (global-set-key (kbd "C-c o c o") 'org-clock-out)
+  (global-set-key (kbd "C-c o n") 'my-create-org-file)
+
+  ;; Function to create a new org file
+  (defun my-create-org-file ()
+    "Create a new org file with a prompt for the file name."
+    (interactive)
+    (let ((org-file-name (read-file-name "Enter org file name: ")))
+      (find-file (concat org-file-name ".org"))
+      (insert "#+TITLE: " (file-name-base org-file-name) "\n\n")
+      (org-mode)))
+
+  ;; You can add more custom keybindings or configurations below if needed.
+#+end_src
+
+** Agenda Key-binding
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c o a") 'org-capture)
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  #+end_src
+  the following is used to assign the files to which the agenda is to be captured 
+  #+begin_src emacs-lisp
+    (setq org-capture-templates
+          '(("a" "Appointment" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/appointment.org" "Tasks")
+             "* PLAN %?\nSCHEDULED: %^T\n")
+            ("b" "Birthday" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/birthday.org" "Birthdays")
+             "* PLAN %?\nSCHEDULED: %^T\n")
+            ("g" "GTD Task" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/GTD.org" "Tasks")
+             "* PLAN %?\nSCHEDULED: %^T\n")
+            ("p" "Project" entry (file+headline "~/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "Projects")
+             "* PLAN %?\nSCHEDULED: %^T\n")
+            ;; Add more templates as needed
+            ))
+#+end_src
+
+** ROAM key-binding
+#+begin_src emacs-lisp 
+(global-set-key (kbd "C-c r n") 'org-roam-capture)
+(global-set-key (kbd "C-c r f") 'org-roam-node-find)
+(global-set-key (kbd "C-c r m") 'completion-at-point)
+(global-set-key (kbd "C-c r a t") 'org-roam-tag-add)
+(global-set-key (kbd "C-c r a r") 'org-roam-ref-add)
+#+end_src
+
 * Custom Configuration
 #+begin_src emacs-lisp
-  (setq custom-file "~/.config/emacs/custom.el")
-  (when (file-exists-p custom-file)
-    (load custom-file))
-;; Local Variables:
-;; no-byte-compile: t
-;; End:
+    (setq custom-file "~/.config/emacs/custom.el")
+(add-hook 'elpaca-after-init-hook
+          (lambda ()
+            (when (file-exists-p custom-file)
+              (load custom-file 'noerror))))
+  ;; Local Variables:
+  ;; no-byte-compile: t
+  ;; End:
 #+end_src
 
