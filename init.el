@@ -541,6 +541,7 @@
       (find-file "~/.config/emacs/README.org"))
 (global-set-key (kbd "C-c b") 'bufler-switch-buffer)
 (global-set-key (kbd "C-c K") 'kill-this-buffer)
+(global-set-key (kbd "C-c t") 'eat)
 
 (global-set-key (kbd "C-x b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
 (global-set-key (kbd "C-c o c i") 'org-clock-in)

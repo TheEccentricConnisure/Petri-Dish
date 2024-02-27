@@ -35,4 +35,4 @@
   (setq elfeed-search-title-max-width 110)
   (setq elfeed-search-filter "@2-week-ago +unread")
 
-(provide 'zotearo)
+(provide 'feed-reader)

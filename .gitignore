@@ -21,10 +21,10 @@ url/
 elpa/
 eshell/
 /vibranium/spacemacs_module_for_doom/
-#README.org#
+.#README.org#
 .#README.org
 .#recentf
 org-roam-db.bak
 tramp
-/vibraniums/#hashmap.org#
+
 
