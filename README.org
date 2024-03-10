@@ -1,6 +1,6 @@
-#+AUTHOR: Dr. Eccentric
 #+TITLE: Dr. Eccentric's Emacs Literate Config
 #+DESCRIPTION: Eccentric's Personal Emacs Config.
+#+AUTHOR: Dr. Eccentric
 #+STARTUP: indent
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 #+OPTIONS: toc:
@@ -72,7 +72,7 @@
     ;; -*- lexical-binding: t; -*-
 
     ; The loading of the Vibraniums
-            (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
+            (add-to-list 'load-path "~/.config/emacs/vibraniums/")
             ;; The Elpaca Package Manager
             (require 'elpaca-setup)
   (elpaca-wait)
@@ -314,8 +314,8 @@ This section configures basic UI settings that remove unneeded elements to make 
 * Modal Editing
 ** Meow
 #+begin_src emacs-lisp
-      (use-package meow
-         :config
+  (use-package meow
+    :config
     (require 'meow-qwerty)
     (meow-setup)
     (meow-global-mode 1)
@@ -323,18 +323,11 @@ This section configures basic UI settings that remove unneeded elements to make 
     (setq meow-use-clipboard t)
     )
 #+end_src
-** PLAN SCAMX
-#+begin_src emacs-lisp :tangle no
-  (use-package scamx
-    :ensure (:host github :repo "MagiFeeney/scamx")
-    :config
-    (electric-pair-mode))
-    #+end_src
 * dired accesories
 ** all the icons
 #+begin_src emacs-lisp  
-      (use-package all-the-icons-dired
-        :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+  (use-package all-the-icons-dired
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
   #+end_src
 ** Opener
 this helps to open specific files
@@ -559,9 +552,8 @@ CLOSED: [2024-02-13 Tue 14:08]
   ;; Customize the variable org-refile-targets to specify the refile targets.
   ;; The example below sets it to refile headlines in the current buffer,
   ;; as well as in the "~/path/to/destination.org" file.
-  (setq org-refile-targets '((nil :maxlevel . 3)
-                             (org-agenda-files :maxlevel . 3)
-                             ("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
+  (setq org-refile-targets '(;(nil :maxlevel . 7)
+                             ("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 7)))
   ;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
   (setq org-refile-use-outline-path t)
 
@@ -636,12 +628,12 @@ CLOSED: [2024-02-13 Tue 14:08]
         (not (member "ATTACH" (org-get-tags)))))
 #+end_src
 
-*** TODO Block-ref
+*** TODO [#D] Block-ref
 CLOSED: [2024-02-16 Fri 11:51]
 #+begin_src emacs-lisp :tangle no
     (use-package org-roam-dblocks
     :ensure (org-roam-dblocks :host github :repo "chrisbarrett/nursery" :files (:exclude "images/*") :main "lisp/org-roam-dblocks.el")
- :hook (org-mode . org-roam-dblocks-autoupdate-mode))
+n :hook (org-mode . org-roam-dblocks-autoupdate-mode))
 #+end_src
 
 ** Directory (Yellow Pages)
@@ -731,8 +723,6 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 (use-package djvu)
 #+end_src
 
-#+RESULTS:
-
 ** consult-org
 #+begin_src emacs-lisp
 (use-package consult-org-roam
@@ -797,9 +787,6 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 
 #+end_src
 
-#+RESULTS:
-| d | Default | plain | %? | :target | (file+head ${slug}.org #+title: ${title} |
-
 * IDEA RSS
 #+begin_src emacs-lisp
   (use-package elfeed
@@ -812,6 +799,38 @@ In the past, textbooks were sometimes published as interleaved editions. That me
   ; (require 'zotearo)
 #+end_src
 
+** nanofeed
+#+begin_src emacs-lisp :tangle no
+  (use-package relative-date
+    :ensure (relative-date :host github :repo "rougier/relative-date"))
+    (use-package nano-elfeed
+       :ensure (nano-elfeed :host github :repo "rougier/nano-elfeed"))
+#+end_src
+
+** org combo
+#+begin_src emacs-lisp :tangle no
+  ;; Configure Elfeed with org mode
+  (use-package elfeed-org
+    :config
+    (elfeed-org)
+    :custom
+    (rmh-elfeed-org-files (list ews-elfeed-config-file)))
+
+  ;; Easy insertion of weblinks
+  (use-package org-web-tools
+    :bind
+    (("C-c w w" . org-web-tools-insert-link-for-url)))
+#+end_src
+
+** Elfeed Dashboard
+#+begin_src emacs-lisp
+(use-package elfeed-dashboard
+  :ensure t
+  :config
+  (setq elfeed-dashboard-file "~/elfeed-dashboard.org")
+  ;; update feed counts on elfeed-quit
+  (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
+#+end_src
 * TERMINAL
 #+begin_src emacs-lisp
    (use-package eat
@@ -825,7 +844,7 @@ In the past, textbooks were sometimes published as interleaved editions. That me
                 (:exclude ".dir-locals.el" "*-tests.el"))))
 #+end_src
 
-* Keybindiwngs
+* Keybindings
 ** Basics
 #+begin_src emacs-lisp
       (global-set-key (kbd "C-c e") 'open-my-config)
@@ -840,7 +859,7 @@ In the past, textbooks were sometimes published as interleaved editions. That me
 
 ** Org Key-binding
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-x b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
+  (global-set-key (kbd "C-x b") 'org-switchb) 
   (global-set-key (kbd "C-c o c i") 'org-clock-in)
   (global-set-key (kbd "C-c o c o") 'org-clock-out)
   (global-set-key (kbd "C-c o n") 'my-create-org-file)

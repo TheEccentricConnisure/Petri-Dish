@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
   ; The loading of the Vibraniums
-          (add-to-list 'load-path "~/.config/emacs/vibraniums/" "~/.config/emacs/vibraniums/spacemacs_module_for_doom/")
+          (add-to-list 'load-path "~/.config/emacs/vibraniums/")
           ;; The Elpaca Package Manager
           (require 'elpaca-setup)
 (elpaca-wait)
@@ -173,13 +173,13 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package meow
-     :config
-(require 'meow-qwerty)
-(meow-setup)
-(meow-global-mode 1)
-(setq meow-expand-exclude-mode-list (remove 'org meow-expand-exclude-mode-list))
-(setq meow-use-clipboard t)
-)
+  :config
+  (require 'meow-qwerty)
+  (meow-setup)
+  (meow-global-mode 1)
+  (setq meow-expand-exclude-mode-list (remove 'org meow-expand-exclude-mode-list))
+  (setq meow-use-clipboard t)
+  )
 
 (use-package all-the-icons-dired
   :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
@@ -342,9 +342,8 @@
 ;; Customize the variable org-refile-targets to specify the refile targets.
 ;; The example below sets it to refile headlines in the current buffer,
 ;; as well as in the "~/path/to/destination.org" file.
-(setq org-refile-targets '((nil :maxlevel . 3)
-                           (org-agenda-files :maxlevel . 3)
-                           ("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 3)))
+(setq org-refile-targets '(;(nil :maxlevel . 7)
+                           ("/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" :maxlevel . 7)))
 ;; Optionally, set org-refile-use-outline-path to t to show the full outline path in the completion.
 (setq org-refile-use-outline-path t)
 
@@ -524,6 +523,13 @@
    (elfeed-score-enable))
 ; (require 'zotearo)
 
+(use-package elfeed-dashboard
+  :ensure t
+  :config
+  (setq elfeed-dashboard-file "~/elfeed-dashboard.org")
+  ;; update feed counts on elfeed-quit
+  (advice-add 'elfeed-search-quit-window :after #'elfeed-dashboard-update-links))
+
 (use-package eat
 :ensure (eat 
       :host codeberg
@@ -543,7 +549,7 @@
 (global-set-key (kbd "C-c K") 'kill-this-buffer)
 (global-set-key (kbd "C-c t") 'eat)
 
-(global-set-key (kbd "C-x b") 'org-switchb) ;this key-binding is used to solely switch between the org buffers
+(global-set-key (kbd "C-x b") 'org-switchb) 
 (global-set-key (kbd "C-c o c i") 'org-clock-in)
 (global-set-key (kbd "C-c o c o") 'org-clock-out)
 (global-set-key (kbd "C-c o n") 'my-create-org-file)

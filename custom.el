@@ -5,9 +5,9 @@
  ;; If there is more than one, they won't work right.
  '(delete-selection-mode nil)
  '(elfeed-feeds
-   '("https://morss.it/:items=||*[class=article--meta]/https://jamanetwork.com/journals/jama" "https://morss.it/:items=||*[class=section-container]||ul|li/https://www.medscape.com/" "https://morss.it/:items=||*[class=c-listing__content]/https://eurjmedres.biomedcentral.com/articles"))
+   '("https://www.nejm.org/action/showFeed?jc=nejm&type=etoc&feed=rss" "https://www.amjmed.com/current.rss" "https://www.nature.com/nm.rss"))
  '(org-agenda-files
-   '("~/Documents/wORG/My-Personal/Transmogrify/appointment.org" "/home/Dr.Eccentric/Documents/wORG/Org-ROAM/Alexandria/cms_upsc.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "/home/Dr.Eccentric/.config/emacs/README.org"))
+   '("~/Documents/wORG/My-Personal/Transmogrify/Niflheim.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/caldav.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/appointment.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/birthdays.org" "/home/Dr.Eccentric/Documents/wORG/Org-ROAM/Alexandria/cms_upsc.org" "/home/Dr.Eccentric/Documents/wORG/My-Personal/Transmogrify/Stone-Tablet.org" "/home/Dr.Eccentric/.config/emacs/README.org"))
  '(package-selected-packages '(org org-present meow))
  '(warning-suppress-log-types '((comp))))
 
